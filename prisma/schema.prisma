@@ -1,0 +1,119 @@
+// SwiftShop schema — see webplan.md §8 for the field explanations.
+// Prisma ORM 7 (prisma-client generator). Run: npx prisma migrate dev
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ===== Accounts & stores (multi-tenant) =====
+
+model User {
+  id           String  @id @default(cuid())
+  email        String  @unique
+  name         String?
+  passwordHash String? // null when the user signed up via an OAuth provider
+  store        Store?
+  createdAt    DateTime @default(now())
+}
+
+model Store {
+  id             String @id @default(cuid())
+  owner          User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId        String @unique
+  slug           String @unique // the URL word, e.g. "sitasfashion"
+  name           String
+  category       String // clothing | electronics | general
+  city           String
+  template       String @default("clothing")
+  primaryColor   String @default("#0F766E")
+  logoUrl        String?
+  tagline        String?
+  paymentCod     Boolean @default(true)
+  qrImageUrl     String? // owner's eSewa/Khalti/Fonepay QR photo
+  deliveryPartner String @default("self") // self | ncm | pathao | indrive
+  courierAccountNo String?
+  whatsappNumber String? // shop line / owner phone for customer chat
+  products       Product[]
+  orders         Order[]
+  customers      Customer[]
+  createdAt      DateTime @default(now())
+}
+
+// ===== Catalog =====
+
+model Product {
+  id        String @id @default(cuid())
+  storeId   String
+  store     Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  name      String
+  caption   String @default("")
+  priceNpr  Int // integers only — no paise floating-point money bugs
+  stock     Int @default(0) // 0 = out of stock unless available is true
+  available Boolean @default(true)
+  imageUrls String[] // photo paths (Postgres array)
+  createdAt DateTime @default(now())
+
+  @@index([storeId])
+}
+
+// ===== Customers & orders =====
+
+model Customer {
+  id        String @id @default(cuid())
+  storeId   String
+  store     Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  name      String
+  phone     String
+  address   String?
+  orders    Order[]
+  createdAt DateTime @default(now())
+
+  @@index([storeId])
+}
+
+model Order {
+  id            String @id @default(cuid())
+  storeId       String
+  store         Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  orderNo       Int // human number 1,2,3… per store (increment)
+  status        String @default("new") // new→confirmed→handed→delivered | cancelled
+  customer      Customer @relation(fields: [customerId], references: [id])
+  customerId    String
+  items         OrderItem[]
+  totalNpr      Int // snapshot total at purchase time
+  paymentType   String @default("cod") // cod | qr | (later: esewa|khalti)
+  paymentStatus String @default("unpaid") // unpaid|paid
+  delivery      Delivery?
+  deliveredAt   DateTime?
+  createdAt     DateTime @default(now())
+
+  @@unique([storeId, orderNo])
+  @@index([storeId, status])
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  order     Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   String
+  productId String? // soft link — product may be deleted later; name is snapshotted
+  name      String
+  priceNpr  Int
+  qty       Int
+}
+
+model Delivery {
+  id          String @id @default(cuid())
+  order       Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId     String @unique
+  partner     String @default("self") // self|ncm|pathao|indrive
+  status      String @default("ready") // ready|handed|in_transit|delivered
+  trackingRef String?
+  manifest    String? // copy-paste pickup summary
+  handedAt    DateTime?
+  deliveredAt DateTime?
+}
