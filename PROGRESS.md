@@ -21,7 +21,9 @@ _Last updated: 2026-09-13. Update this file at the END of every session/phase._
 - ✅ User's follow-along requirement: every phase (0–5) in `webplan.md` §14 now has a **✍️ Cross-check for YOU** block (open these files / run this command / see this result). Golden rule: if a cross-check fails, phase is NOT done.
 
 ## Next step
-- **Run the Phase 0 ✍️ Cross-check WITH THE USER**, then run the review pass (§5.8: `clean-code`, `refactoring`, `supply-chain-risk-auditor`, `differential-review`) and fix real findings, then commit tagged `phase-0`. Then begin Phase 1 (read `docs/PLAN.md` §14 Phase 1).
+- **Phase 0 cross-check IS PRESENTED TO THE USER (2026-09-13), awaiting their walkthrough verdict.** When they confirm: start Phase 1 (read `docs/PLAN.md` §14 Phase 1: onboarding wizard, template picker, product tools).
+- NOTE: dev server may still be running on :3000 (orphaned PID from earlier background task). User can `taskkill /PID <pid> /F` then `npm run dev` cleanly.
+- Old folder `D:\#helpweb` still on disk (desktop app pins Bash/preview to it → busy). Delete after app restart.
 
 ## Done in Phase 0 (2026-09-13)
 - **⚠️ PROJECT MOVED: `D:\#helpweb` → `D:\SwiftShop`.** The `#` in the folder name broke Next.js builds (Turbopack + webpack both insert a null byte in `file://` paths → `ERR_INVALID_ARG_VALUE`). Copied project (excl. node_modules/.next), reinstalled deps, build now passes. **Old folder `D:\#helpweb` left on disk — delete once session fully released.** NOTE: paths in docs below may still say `#helpweb`.
