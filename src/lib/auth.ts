@@ -18,8 +18,8 @@ const credentialsSchema = z.object({
 });
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  trustHost: true,
-  session: { strategy: "jwt" },
+  trustHost: true, // self-hosted dev; drop this on Vercel (it sets its own trust)
+  session: { strategy: "jwt", maxAge: 60 * 60 * 24 * 7 }, // sessions expire after 7 days
   pages: { signIn: "/login" },
   providers: [
     Credentials({

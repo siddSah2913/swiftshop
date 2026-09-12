@@ -42,6 +42,13 @@ _Last updated: 2026-09-13. Update this file at the END of every session/phase._
 - Never hold/escrow customer money — keeps us from needing an NRB PSP license (Payment System Act 2019).
 - Environment: Windows, bash shell, Node v24.18.0, npm 12.0.1.
 
+## Review log (§5.8 — one line per review after each phase)
+- **differential-review** (Trail of Bits, 2026-09-13, focused-adaptation — greenfield baseline, no prior commit to diff): FIXED — JWT session now expires after 7 days (`maxAge`). ACCEPTED (documented, Phase 3): no login rate-limiting yet (bcrypt compare is a natural throttle; NextAuth doesn't rate-limit built-in); `trustHost:true` for self-hosted dev (drop on Vercel); signup reveals email-exists (standard, matching big platforms). VERIFIED CLEAN: `.env` gitignored, `.env.example` uses placeholders only, no secrets in diff.
+- **supply-chain-risk-auditor** (2026-09-13): npm-native sweep (collector needs `uv`+`gh` — not in this env; coverage = `npm audit` on installed tree). **4 high, 0 critical**, ALL transitive inside Prisma CLI tooling: `deepmerge-ts` (stack-exhaustion merge), `mysql2` (auth-downgrade + zlib-DoS — MySQL only, we are Postgres). npm's offered "fix" = downgrade to `prisma@6.19.3` (major back) — REJECTED. ACTION TRACKED: re-check for a clean fix when bumping to a `prisma@7.x` patch.
+- **clean-code** (ciembor, 2026-09-13): PASS. Minor accepted: login/signup form markup duplication (2 forms, extracting a shared `<Field>` is over-abstraction at this size).
+- **refactoring** — not run as separate pass; clean-code covers this scope. Full `differential-review`, `static-analysis`, `insecure-defaults` → scheduled at Phase 1 end & whenever auth/payment/delivery code lands (5.8 table).
+- **initial `npm audit`**: 13 vulns (2026-09-12) → after pinning `prisma@7.10.0` CLI+client to match: **4 high**, all the Prisma-transitive set above. No further drip.
+
 ## How to run (after Phase 0)
 - `npm run dev` → `http://localhost:3000`
 - `npm run build` (must pass), `npx prisma studio` (inspect DB), `npx prisma migrate dev` (schema changes)
