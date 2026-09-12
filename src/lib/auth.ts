@@ -49,7 +49,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     // Persist the user id in the JWT's built-in `sub` field, then expose it on
     // the session. (`sub` is a standard JWT claim — no custom type plumbing.)
     jwt({ token, user }) {
-      if (user) token.sub = user.id;
+      if (user) {
+        // authorize() MUST return an id — it is the tenant key. Without this
+        // guard a future edit that returns `{ name, email }` compiles fine, drops
+        // token.sub, and Prisma silently strips the undefined id from `where`
+        // (→ cross-tenant read). Fail loud at sign-in instead.
+        if (!user.id) throw new Error("authorize() must return a user id");
+        token.sub = user.id;
+      }
       return token;
     },
     session({ session, token }) {
