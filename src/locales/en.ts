@@ -48,6 +48,72 @@ export const en = {
   // Generic
   "common.error":
     "Something went wrong. Please try again.",
+
+  // Navigation (Phase 1)
+  "nav.setupYourShop": "Set up your shop",
+
+  // Onboarding wizard
+  "onboarding.title": "Set up your shop",
+  "onboarding.subtitle": "Four quick steps and your store is live.",
+  "onboarding.shopName": "Shop name",
+  "onboarding.shopNameHint": "What customers will see in their browser tab.",
+  "onboarding.category": "What do you sell?",
+  "onboarding.category.clothing": "Clothing & Fashion",
+  "onboarding.category.electronics": "Electronics & Gadgets",
+  "onboarding.category.general": "General / Kirana / Handmade",
+  "onboarding.city": "Where is your shop?",
+  "onboarding.selectProvince": "Select province",
+  "onboarding.selectDistrict": "Select district",
+  "onboarding.slug": "Your store link",
+  "onboarding.slugHint": "We made one from your shop name — you can change it.",
+  "onboarding.slugTaken": "That name is taken — try another.",
+  "onboarding.slugAvailable": "Available ✓",
+  "onboarding.slugInvalid": "Use letters and numbers only, separated by -.",
+  "onboarding.createButton": "Create my shop",
+  "onboarding.province.koshi": "Koshi Province",
+  "onboarding.province.madhesh": "Madhesh Province",
+  "onboarding.province.bagmati": "Bagmati Province",
+  "onboarding.province.gandaki": "Gandaki Province",
+  "onboarding.province.lumbini": "Lumbini Province",
+  "onboarding.province.karnali": "Karnali Province",
+  "onboarding.province.sudurpashchim": "Sudurpashchim Province",
+
+  // Design page
+  "design.title": "Make it yours",
+  "design.template": "Pick a template",
+  "design.template.clothing": "Clothing",
+  "design.template.electronics": "Electronics",
+  "design.template.general": "General",
+  "design.colorLabel": "Brand color",
+  "design.logo": "Logo",
+  "design.logoHint": "Optional — a square photo works best.",
+  "design.save": "Save & see my products",
+  "design.invalidColor": "Choose a valid color.",
+
+  // Products
+  "products.title": "Your products",
+  "products.add": "Add product",
+  "products.empty": "No products yet — add your first one.",
+  "products.name": "Product name",
+  "products.caption": "Caption",
+  "products.priceNpr": "Price (NPR)",
+  "products.saveAll": "Save all",
+  "products.save": "Save product",
+  "products.bulkMode": "Add several products",
+  "products.singleMode": "Add one product at a time",
+  "products.bulkHint": "Each photo becomes its own product.",
+  "products.photo": "Photos",
+  "products.addPhoto": "Add photo",
+  "products.remove": "Remove",
+  "products.edit": "Edit",
+  "products.delete": "Delete",
+  "products.deleteConfirm": "Delete this product?",
+  "products.invalidName": "Give the product a name.",
+  "products.invalidPrice": "Enter a price in rupees (whole number).",
+  "products.invalidImage": "Use a JPG, PNG, or WebP photo.",
+  "products.imageTooBig": "Photo is too big — max 5 MB per photo.",
+  "products.tooManyPhotos": "Too many photos — max 6 per upload.",
+  "products.saved": "Saved.",
 } as const;
 
 /** Type of a dictionary: one string value for every key. */
