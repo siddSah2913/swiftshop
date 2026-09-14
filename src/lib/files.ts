@@ -2,12 +2,16 @@
 // default (see next.config.ts bodySizeLimit raise) — per-file and per-batch
 // caps live here so callers (product/design actions) stay small.
 
+// MAX_FILE_BYTES / MAX_PHOTOS_PER_SUBMISSION live in upload-limits.ts so
+// client components can import them without pulling node: builtins into the
+// browser bundle; import locally (used by validateImageFile below) and
+// re-export so existing `@/lib/files` imports keep working.
+import { MAX_FILE_BYTES, MAX_PHOTOS_PER_SUBMISSION } from "./upload-limits";
 import { mkdir, writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 
-export const MAX_FILE_BYTES = 5 * 1024 * 1024;
-export const MAX_PHOTOS_PER_SUBMISSION = 6;
+export { MAX_FILE_BYTES, MAX_PHOTOS_PER_SUBMISSION };
 
 const EXT_BY_MIME: Record<string, string> = {
   "image/jpeg": "jpg",
