@@ -1,63 +1,63 @@
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import Link from "next/link";
+import { requireStore } from "@/lib/require-store";
 import { prisma } from "@/lib/db";
 import { getLocale, t } from "@/lib/i18n";
 
-// Phase 0 placeholder dashboard. The full owner dashboard (orders, products,
-// customers — phone-first) is built in Phase 3.
+// Dashboard home — a compact "Today" strip. At a glance the owner sees the two
+// numbers that matter when they open the app: how many fresh ("new") orders
+// need attention, and what has sold so far today (integer NPR). Both stats
+// link to the orders list, where the supporting rows live.
 export default async function DashboardPage() {
-  const session = await auth();
-  if (!session?.user) redirect("/login");
-
-  const store = await prisma.store.findUnique({
-    where: { ownerId: session.user.id },
-  });
-
+  const { store } = await requireStore();
   const locale = getLocale(
     (await cookies()).get("swiftshop_lang")?.value ?? null,
   );
 
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const [newOrders, salesToday] = await Promise.all([
+    prisma.order.count({ where: { storeId: store.id, status: "new" } }),
+    prisma.order.aggregate({
+      _sum: { totalNpr: true },
+      where: { storeId: store.id, createdAt: { gte: todayStart } },
+    }),
+  ]);
+
+  const amountNpr = salesToday._sum.totalNpr ?? 0;
+
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold text-zinc-900">
-        {t(locale, "dashboard.title")}
+    <div>
+      <h1 className="text-2xl font-bold text-zinc-900">
+        {t(locale, "dashboard.today")}
       </h1>
 
-      <p className="text-zinc-600">
-        {t(locale, "dashboard.welcome")},{" "}
-        <span className="font-medium text-zinc-900">
-          {session?.user.name ?? session?.user.email}
-        </span>
-        .
-      </p>
-
-      {store ? (
-        <section className="rounded-lg border border-zinc-200 bg-white p-6">
-          <h2 className="font-semibold text-zinc-900">
-            {t(locale, "dashboard.demoDataTitle")}
-          </h2>
-          <p className="mt-2 text-sm text-zinc-600">
-            {t(locale, "dashboard.demoDataBody")}
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Link
+          href="/dashboard/orders"
+          className="rounded-lg border border-zinc-200 bg-white p-5 transition hover:border-teal-300 hover:shadow-sm"
+        >
+          <p className="text-sm text-zinc-500">
+            {t(locale, "dashboard.newOrders")}
           </p>
-          <pre className="mt-4 overflow-x-auto rounded-md bg-zinc-900 p-3 text-xs text-zinc-100">
-            npx prisma studio
-          </pre>
-        </section>
-      ) : (
-        <section className="rounded-lg border border-zinc-200 bg-white p-6">
-          <h2 className="font-semibold text-zinc-900">{t(locale, "nav.setupYourShop")}</h2>
-          <p className="mt-2 text-sm text-zinc-600">{t(locale, "onboarding.subtitle")}</p>
-          <a
-            href="/dashboard/onboarding"
-            className="mt-4 inline-block rounded-md bg-teal-700 px-4 py-2 font-medium text-white hover:bg-teal-800"
-          >
-            {t(locale, "nav.setupYourShop")}
-          </a>
-        </section>
-      )}
+          <p className="mt-1 text-3xl font-semibold text-zinc-900">
+            {newOrders}
+          </p>
+        </Link>
 
-      <p className="text-sm text-zinc-500">{t(locale, "dashboard.nextSteps")}</p>
+        <Link
+          href="/dashboard/orders"
+          className="rounded-lg border border-zinc-200 bg-white p-5 transition hover:border-teal-300 hover:shadow-sm"
+        >
+          <p className="text-sm text-zinc-500">
+            {t(locale, "dashboard.salesToday")}
+          </p>
+          <p className="mt-1 text-3xl font-semibold text-zinc-900">
+            {t(locale, "product.priceNpr")} {amountNpr.toLocaleString("en-IN")}
+          </p>
+        </Link>
+      </div>
     </div>
   );
 }

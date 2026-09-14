@@ -44,19 +44,14 @@ export const ne: Dict = {
   "auth.emailTaken": "यो इमेलले पहिले नै खाता बनाएको छ — लगइन गर्नुहोस्।",
   "auth.passwordTooShort": "पासवर्ड कम्तीमा ६ अक्षर हुनुपर्छ।",
 
-  // Dashboard shell (full dashboard ships in Phase 3)
-  "dashboard.title": "ड्यासबोर्ड",
-  "dashboard.welcome": "तपाईं लगइन गरिसक्नुभयो",
-  "dashboard.demoDataTitle": "डेमो पसल तयार छ",
-  "dashboard.demoDataBody":
-    "तपाईंको डेमो पसल “Sita's Fashion” slug “sitasfashion” मा छ। उत्पादनहरू: Cotton Kurta · Daura Suruwal · Pashmina Shawl।",
-  "dashboard.nextSteps":
-    "फेज १ ले अनबोर्डिङ विजार्ड र उत्पादन उपकरण ल्याउँछ। त्यतिन्जेल Prisma Studio मा डेमो डाटा हेर्नुहोस्, अनि नयाँ खाता बनाएर हेर्नुहोस्। ",
+  // Dashboard home (Phase 3 — "Today" strip)
+  "dashboard.today": "आज",
+  "dashboard.newOrders": "नयाँ अर्डर",
+  "dashboard.salesToday": "आजको बिक्री",
 
   // Generic
   "common.error": "केही गडबड भयो। फेरि प्रयास गर्नुहोस्।",
 
-  "nav.setupYourShop": "पसल खोल्नुहोस्",
   "onboarding.title": "आफ्नो पसल बनाउनुहोस्",
   "onboarding.subtitle": "चार चरणमा तपाईंको पसल — जतनसँग।",
   "onboarding.shopName": "पसलको नाम",

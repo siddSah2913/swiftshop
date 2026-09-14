@@ -43,19 +43,14 @@ export const en = {
   "auth.emailTaken": "That email is already signed up — sign in instead.",
   "auth.passwordTooShort": "Password must be at least 6 characters.",
 
-  // Dashboard shell (full dashboard ships in Phase 3)
-  "dashboard.title": "Dashboard",
-  "dashboard.welcome": "You're logged in",
-  "dashboard.demoDataTitle": "Demo store ready",
-  "dashboard.demoDataBody": "Your demo shop “Sita's Fashion” is at the slug “sitasfashion”. Products: Cotton Kurta · Daura Suruwal · Pashmina Shawl.",
-  "dashboard.nextSteps": "Phase 1 brings the onboarding wizard and product tools. For now, inspect the demo rows with Prisma Studio, then sign up a real account and browse the API. ",
+  // Dashboard home (Phase 3 — "Today" strip)
+  "dashboard.today": "Today",
+  "dashboard.newOrders": "New orders",
+  "dashboard.salesToday": "Sales today",
 
   // Generic
   "common.error":
     "Something went wrong. Please try again.",
-
-  // Navigation (Phase 1)
-  "nav.setupYourShop": "Set up your shop",
 
   // Onboarding wizard
   "onboarding.title": "Set up your shop",
