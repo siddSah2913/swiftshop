@@ -109,4 +109,51 @@ export const ne: Dict = {
   "products.imageTooBig": "फोटो ठूलो भयो — बढीमा ५ MB प्रति फोटो।",
   "products.tooManyPhotos": "धेरै फोटो — बढीमा ६ वटा।",
   "products.saved": "बचत भयो।",
+
+  // Storefront
+  "store.notFound": "पसल भेटिएन।",
+  "store.backToShop": "पसलमा फर्कनुहोस्",
+
+  // Product
+  "product.addToCart": "कार्टमा राख्नुहोस्",
+  "product.added": "राखियो ✓",
+  "product.outOfStock": "सकिएको छ",
+  "product.priceNpr": "रु.",
+  "product.backToShop": "← पसलमा फर्कनुहोस्",
+
+  // Cart
+  "cart.title": "तपाईंको कार्ट",
+  "cart.empty": "तपाईंको कार्ट खाली छ।",
+  "cart.removeItem": "हटाउनुहोस्",
+  "cart.total": "जम्मा",
+  "cart.checkout": "अर्डर गर्नुहोस्",
+  "cart.continueShopping": "किनमेल जारी राख्नुहोस्",
+  "cart.qtyLabel": "परिमाण",
+
+  // Checkout
+  "checkout.title": "अर्डर फारम",
+  "checkout.name": "तपाईंको नाम",
+  "checkout.phone": "फोन नम्बर",
+  "checkout.phoneHint": "१० अंकको मोबाइल (जस्तै 98XXXXXXXX)",
+  "checkout.address": "डेलिभरी ठेगाना",
+  "checkout.addressHint": "वडा, सडक, सहर — कहाँ डेलिभरी गर्ने?",
+  "checkout.payment": "भुक्तानी विधि",
+  "checkout.cod": "बुझेपछि भुक्तानी (COD)",
+  "checkout.qr": "QR स्क्यान गरेर भुक्तानी",
+  "checkout.qrHint": "काउन्टरमा यो QR देखाउनुहोस् वा आफ्नो बैंक एपबाट स्क्यान गर्नुहोस्।",
+  "checkout.placeOrder": "अर्डर पक्का गर्नुहोस्",
+  "checkout.invalidName": "तपाईंको नाम लेख्नुहोस्।",
+  "checkout.invalidPhone": "१० अंकको मान्य मोबाइल नम्बर लेख्नुहोस्, जस्तै 98XXXXXXXX।",
+  "checkout.invalidAddress": "डेलिभरी ठेगाना लेख्नुहोस्।",
+  "checkout.invalidPayment": "भुक्तानी विधि छान्नुहोस्।",
+  "checkout.noQr": "QR भुक्तानी अझ उपलब्ध छैन — पसल मालिकले QR कोड राखेका छैनन्। कृपया बुझेपछि भुक्तानी गर्नुहोस्।",
+  "checkout.cartEmpty": "तपाईंको कार्ट खाली छ — पहिले केही उत्पादन थप्नुहोस्।",
+  "checkout.orderSummary": "अर्डर विवरण",
+
+  // Order confirmed
+  "order.confirmed": "अर्डर पक्का भयो!",
+  "order.number": "अर्डर नं.",
+  "order.thankYou": "तपाईंको अर्डरका लागि धन्यवाद। पक्का गर्न हामी फोन गर्छौं।",
+  "order.whatsapp": "WhatsApp मा सन्देश पठाउनुहोस्",
+  "order.backToShop": "← पसलमा फर्कनुहोस्",
 };

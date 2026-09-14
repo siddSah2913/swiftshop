@@ -114,6 +114,53 @@ export const en = {
   "products.imageTooBig": "Photo is too big — max 5 MB per photo.",
   "products.tooManyPhotos": "Too many photos — max 6 per upload.",
   "products.saved": "Saved.",
+
+  // Storefront
+  "store.notFound": "Shop not found.",
+  "store.backToShop": "Back to shop",
+
+  // Product
+  "product.addToCart": "Add to cart",
+  "product.added": "Added ✓",
+  "product.outOfStock": "Out of stock",
+  "product.priceNpr": "NPR",
+  "product.backToShop": "← Back to shop",
+
+  // Cart
+  "cart.title": "Your cart",
+  "cart.empty": "Your cart is empty.",
+  "cart.removeItem": "Remove",
+  "cart.total": "Total",
+  "cart.checkout": "Checkout",
+  "cart.continueShopping": "Continue shopping",
+  "cart.qtyLabel": "Qty",
+
+  // Checkout
+  "checkout.title": "Checkout",
+  "checkout.name": "Your name",
+  "checkout.phone": "Phone number",
+  "checkout.phoneHint": "10-digit mobile (e.g. 98XXXXXXXX)",
+  "checkout.address": "Delivery address",
+  "checkout.addressHint": "Ward, street, city — where should we deliver?",
+  "checkout.payment": "Payment method",
+  "checkout.cod": "Cash on delivery",
+  "checkout.qr": "Scan QR to pay",
+  "checkout.qrHint": "Show this QR at the counter or scan from your banking app.",
+  "checkout.placeOrder": "Place order",
+  "checkout.invalidName": "Enter your name.",
+  "checkout.invalidPhone": "Enter a valid 10-digit mobile number like 98XXXXXXXX.",
+  "checkout.invalidAddress": "Enter a delivery address.",
+  "checkout.invalidPayment": "Choose a payment method.",
+  "checkout.noQr": "QR payment is not available yet — the shop owner hasn't uploaded a QR code. Please pay by cash on delivery.",
+  "checkout.cartEmpty": "Your cart is empty — add some products first.",
+  "checkout.orderSummary": "Order summary",
+
+  // Order confirmed
+  "order.confirmed": "Order confirmed!",
+  "order.number": "Order #",
+  "order.thankYou": "Thank you for your order. We'll call you to confirm.",
+  "order.whatsapp": "Message us on WhatsApp",
+  "order.backToShop": "← Back to shop",
 } as const;
 
 /** Type of a dictionary: one string value for every key. */
