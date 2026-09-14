@@ -6,7 +6,7 @@ _Last updated: 2026-09-15. Update this file at the END of every session/phase._
 - ✅ **Phase 0 — Foundation** — DONE 2026-09-13 (build passes, auth + i18n verified live).
 - ✅ **Phase 1 — Onboarding + products** — DONE 2026-09-14 (build + 31 tests + 9 task gates + review pass; tagged `phase-1`). Manual E2E walkthrough TBD (see Cross-check below).
 - ✅ **Phase 2 — Customer storefront + checkout** — DONE 2026-09-15 (build + 65 tests + 10 tasks + §5.8 review pass; tagged `phase-2`). Live walkthrough verified.
-- ⬜ Phase 3 — Owner dashboard: Orders + Customers
+- ✅ **Phase 3 — Owner dashboard: Orders + Customers** — DONE 2026-09-15 (build + `npm test` 92/92 + 7 tasks + §5.8 review pass; tagged `phase-3`). Live both-width walkthrough verified + 2-owner tenant isolation (owner B → owner A's order → 404).
 - ⬜ Phase 4 — Delivery automation
 - ⬜ Phase 5 — Real online payments
 - ⬜ Phase 6 — Polish
@@ -23,7 +23,9 @@ _Last updated: 2026-09-15. Update this file at the END of every session/phase._
 ## Next step
 - **Phase 2 review gate CLOSED (2026-09-15)** — `phase-2` tag on `e95efb8`. Hard gates: `npm run build` ✓, `npm run test` 65/65, live walkthrough verified (add → cart → checkout → order confirmed, tenant isolation, repeat-customer address update, qty stepper, i18n).
 - **✍️ Phase 2 Cross-check for you (user):** With `npm run dev` on :3000 — navigate to `sitasfashion` slug → product grid with themed header → add a product → qty 3 via qty stepper → checkout → COD → Place order → order confirmed page shows order number + total. Second account must see NO trace of the first's data. Repeat: same phone, different address → second order must store new address. QR tab: `sitasfashion` has no QR → correct error. Empty payment type: should show "Choose a payment method." (not a blank). Unknown slug → 404.
-- Then start **Phase 3 — Owner dashboard: Orders + Customers** (read `docs/PLAN.md` §14 Phase 3).
+- **Phase 3 review gate CLOSED (2026-09-15)** — `phase-3` tag on `04e8676`. Hard gates: `npm run build` ✓, `npm run test` 92/92 ✓, live walkthrough at **both widths** (phone bottom-tab bar, desktop sidebar rail), §5.8 review `phase-2..HEAD` (0 confirmed). 2-owner tenant test: owner B → owner A's order → 404.
+- **✍️ Phase 3 Cross-check for you (user):** With `npm run dev` on :3000, sign in as `demo@swiftshop.local`/`demo1234` (demo store `demo-shop-01`): on your PHONE — Dashboard shows a "Today" strip (new orders + sales); Orders has a search box + status chips, tapping an order opens detail with Confirm / Mark delivered / Mark paid (+ green WhatsApp); Customers lists people with order counts + WhatsApp buttons; bottom tab bar highlights the active section. On DESKTOP — a left sidebar with the same items replaces the bottom bar. Flip नेपाली: every label changes. Try owner A's flows from a SECOND account (`ownerb@swiftshop.local` → store `owner-b-store`): opening the demo store's order URL must show a clean 404, not the order.
+- Then start **Phase 4 — Delivery automation** (read `docs/PLAN.md` §14 Phase 4).
 - Old folder `D:\#helpweb` still on disk (desktop app pins Bash/preview to it → busy). Delete after app restart.
 
 ## Done in Phase 0 (2026-09-13)
@@ -50,10 +52,22 @@ _Last updated: 2026-09-15. Update this file at the END of every session/phase._
 - **Build + live walkthrough verified** (§15 DoD): storefront → detail → qty → cart-stepper → checkout → place order → order confirmed; unknown slug 404; foreign-cookie isolation.
 - **Review-pass fixes (2026-09-15, before `phase-2` tag):** add-to-cart button no longer permanently disables after one click (accumulate-to-9 restored) · repeat customer's fresh address/name now stored (was silently dropped → old address delivered) · `orderNo` collision hardened with bounded P2002 retry (was a one-shot generic error under double-click/two tabs) · empty `paymentType` now yields `checkout.invalidPayment` i18n key (was Zod-English default → `t()` → `undefined`, silent failure) · cart cookie `qty:0` now dropped, not clamped to an order of 1 · header cart label i18n'd (`cart.nav` en+ne) · product-card add button themed by store `primaryColor` (was hardcoded teal fallback) · `ID_RE` exported from `lib/cart.ts` and reused (deleted local duplicate). SEE Review log below for per-review lines.
 
+## Done in Phase 3 (2026-09-15) — owner dashboard: Orders + Customers
+
+Executed from the approved plan `C:\Users\sidds\.claude\plans\snazzy-drifting-pixel.md` (7 tasks, one commit each, tests-first for pure logic).
+- T1 (`a06ca6c`) `feat(order-status)`: pure status machine (`src/lib/order-status.ts`, Phase 3 v1 transition map, badge/label key maps, `isOrderStatus`), `orderIdSchema` reusing cart's `ID_RE`, `whatsapp.ts` `normalizeDevicePhone` (10-digit → `977`) + `buildWaUrl` — tests-first, 27 new tests (92 total).
+- T2 (`62ac82e`) `feat(dashboard)`: responsive shell — **mobile fixed bottom-tab bar** (`md:hidden`) + **desktop left sidebar rail** (`aside w-60 md:flex`), same nav items in both, `pb-24` clearance, `max-w-3xl`/`md:max-w-5xl`; `dashboard/more` page; locale read from `swiftshop_lang`.
+- T3 (`e294ca5`) `feat(dashboard)`: Today overview — new-orders count + sales-today (NPR, `en-IN`) stat cards → `/dashboard/orders`; dropped dead Phase-0 keys (`dashboard.nextSteps` etc.).
+- T4 (`f7392dc`) `feat(orders)`: list page — server-side `await searchParams` search (name/phone insensitive + orderNo-when-numeric) + status chips (All + 5), orderBy created desc, take 50, empty/no-match states.
+- T5 (`f048771`) `feat(orders)`: tenant-guarded actions `confirmOrder`/`markDelivered`/`markPaid` — `requireStore()` outside `try`, Zod orderId, `canTransition` guards, COD settle-to-paid on delivery + `deliveredAt` stamp, `revalidatePath` both routes then `{ ok: true }` (NO redirect), pre-translated errors typed `TranslationKey`.
+- T6 (`a86e995`) `feat(orders)`: order detail — `notFound()` (bare 404) on miss, customer/payment/items/total sections, order-status-buttons (3 `useActionState` forms, third-arg closure binding), green WhatsApp-me `wa.me` link.
+- T7 (`04e8676`) `feat(customers)`: customers list — order counts (`_count.orders`), `tel:` phone, address, WhatsApp message button (`customers.waMessage` `{store}` splice).
+- **DTC gate** — `npm run build` ✓ (type-check + en↔ne parity), `npm test` 92/92 ✓; live walkthrough at BOTH widths (mobile bottom tabs + desktop sidebar, active states, Today strip, orders search/chips/detail, Confirm→Delivered→COD-auto-Paid, WhatsApp URLs `wa.me/977…`, EN↔नेपाली); **2-owner tenant test**: owner B (own store) opens owner A's `/dashboard/orders/<id>` → bare 404 via tenant-scoped `findFirst`; §5.8 review of the phase diff (`phase-2..HEAD`, code-review skill, medium) — surfaced candidates incl. a phantom `cancelOrder` action were **REFUTED** by verification → 0 confirmed findings → **`git tag phase-3`**.
+
 ## Gotchas / notes for future sessions
 - **Skills** are already installed — do NOT re-install. Verify with `claude plugin list` (8 enabled) + `clean-code`/`refactoring`/`code-complete` load. `static-analysis` needs Semgrep/CodeQL installed as a tool — only when §5.8 first calls for it (after auth/payment/delivery code).
 - `/plugin`, `/compact` etc. are interactive only — not available in the desktop app directly; user runs them via keyboard/terminal.
-- Project root currently: `webplan.md`, `skills-lock.json`, `.claude/` (settings + installed skills), `.agents/`. No code yet. NOT a git repo yet.
+- Project root currently: `webplan.md`, `skills-lock.json`, `.claude/` (settings + installed skills), `.agents/`, `.env` (gitignored). Git repo on `main`; phases tagged `phase-0` … `phase-3`.
 - Money = integers (NPR, no paisa) in DB. Every `storeId` column indexed. Order total snapshotted at purchase time.
 - Never hold/escrow customer money — keeps us from needing an NRB PSP license (Payment System Act 2019).
 - Environment: Windows, bash shell, Node v24.18.0, npm 12.0.1.
@@ -76,6 +90,7 @@ _Last updated: 2026-09-15. Update this file at the END of every session/phase._
 - **static-analysis** (Trail of Bits, 2026-09-13, Semgrep 1.177.0 in `.venv-semgrep`, `p/javascript`+`p/typescript`, 24 rules, 20 files): **0 findings**. No build-at-phase-0 scanning tool needed beyond this.
 - **sharp-edges** (Trail of Bits, 2026-09-13, agent workflow, verdict = nothing blocks Phase 1): fixed before Phase 1 — **F1** `jwt` callback now throws if `authorize()` returns no `user.id` (prevents a silent id-less session from arming a cross-tenant leak via Prisma stripping `undefined` from `where`); **F4** DB URL fail-fast (same fix as insecure-defaults MEDIUM). Deferred with notes in code: F2 (error-state discriminated union — code is correct today, flagged for refactor), F3 (unknown-email login skips bcrypt → timing oracle; and 2 duplicated password zods → single `userCredentialsSchema` at Phase 1), F5 (`trustHost` conditional-ize + pin AUTH_URL before Phase 5 OAuth), F6 (demo account gate `NODE_ENV!==production`), F7 (`AUTH_SECRET` boot guard) — F6+F7 must land before any real deploy.
 - **initial `npm audit`**: 13 vulns (2026-09-12) → after pinning `prisma@7.10.0` CLI+client to match: **4 high**, all the Prisma-transitive set above. No further drip.
+- **code-review** (built-in, medium, Phase 3 diff `phase-2..HEAD`, 2026-09-15 §5.8 gate): **0 confirmed findings.** Angles surfaced candidates from the new orders/customers code — the significant one was a claimed `cancelOrder` server action "without a transition guard"; the verify pass **REFUTED** it (`cancelOrder` does not exist in the codebase; Phase 3 actions `confirmOrder`/`markDelivered`/`markPaid` are all `canTransition`-guarded). A second agent's garbled multi-item report (incl. a duplicate Cancel-button claim + a Phase-0 onboarding category-validation note, out of diff) did not survive against the actual source. No fixes required.
 
 ## How to run (after Phase 0)
 - `npm run dev` → `http://localhost:3000`
