@@ -157,4 +157,13 @@ export const ne: Dict = {
   "order.thankYou": "तपाईंको अर्डरका लागि धन्यवाद। पक्का गर्न हामी फोन गर्छौं।",
   "order.whatsapp": "WhatsApp मा सन्देश पठाउनुहोस्",
   "order.backToShop": "← पसलमा फर्कनुहोस्",
+
+  // Order statuses (dashboard — Phase 3)
+  "orders.new": "नयाँ",
+  "orders.confirmed": "पक्का भएको",
+  "orders.handed": "सुम्पिएको",
+  "orders.delivered": "डेलिभरी भयो",
+  "orders.cancelled": "रद्द",
+  "orders.paid": "भुक्तानी भयो",
+  "orders.unpaid": "भुक्तानी बाँकी",
 };

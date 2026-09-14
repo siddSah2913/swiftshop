@@ -162,6 +162,15 @@ export const en = {
   "order.thankYou": "Thank you for your order. We'll call you to confirm.",
   "order.whatsapp": "Message us on WhatsApp",
   "order.backToShop": "← Back to shop",
+
+  // Order statuses (dashboard — Phase 3)
+  "orders.new": "New",
+  "orders.confirmed": "Confirmed",
+  "orders.handed": "Handed",
+  "orders.delivered": "Delivered",
+  "orders.cancelled": "Cancelled",
+  "orders.paid": "Paid",
+  "orders.unpaid": "Unpaid",
 } as const;
 
 /** Type of a dictionary: one string value for every key. */
