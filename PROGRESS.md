@@ -1,10 +1,10 @@
 # PROGRESS — SwiftShop: Nepal's E-commerce Website Builder
 
-_Last updated: 2026-09-13. Update this file at the END of every session/phase._
+_Last updated: 2026-09-14. Update this file at the END of every session/phase._
 
 ## Phase status
-- ✅ **Phase 0 — Foundation** — DONE 2026-09-13 (build passes, auth + i18n verified live). Cross-check with user in progress.
-- ⬜ Phase 1 — Onboarding + products
+- ✅ **Phase 0 — Foundation** — DONE 2026-09-13 (build passes, auth + i18n verified live).
+- ✅ **Phase 1 — Onboarding + products** — DONE 2026-09-14 (build + 31 tests + 9 task gates + review pass; tagged `phase-1`). Manual E2E walkthrough TBD (see Cross-check below).
 - ⬜ Phase 2 — Customer storefront + checkout
 - ⬜ Phase 3 — Owner dashboard: Orders + Customers
 - ⬜ Phase 4 — Delivery automation
@@ -21,8 +21,9 @@ _Last updated: 2026-09-13. Update this file at the END of every session/phase._
 - ✅ User's follow-along requirement: every phase (0–5) in `webplan.md` §14 now has a **✍️ Cross-check for YOU** block (open these files / run this command / see this result). Golden rule: if a cross-check fails, phase is NOT done.
 
 ## Next step
-- **Phase 0 review gate CLOSED (2026-09-13): all §5.8 skills have run** — clean-code ✅, differential-review ✅, supply-chain ✅, refactoring ✅, insecure-defaults ✅ (2 findings fixed), static-analysis ✅ (0), sharp-edges ✅ (F1+F4 fixed). Build re-verified after fixes (landing 200 / login 200 / dashboard 307→login / no `X-Powered-By`).
-- Remaining before Phase 1: (1) user's Phase 0 walkthrough verdict (sign-up→dashboard, flip to नेपाली, prisma studio, /dashboard→/login redirect), (2) commit this review-fix batch (`db.ts` fail-fast, `auth.ts` jwt id-guard, `next.config.ts` poweredByHeader) — offered to user as commit-now vs bundle-with-Phase-1. Then start **Phase 1** (read `docs/PLAN.md` §14 Phase 1: onboarding wizard, template picker, product tools).
+- **Phase 1 review gate CLOSED (2026-09-14)** — `phase-1` tag on `e5647df`. Hard gates green: `npm run build` (routes incl. `/dashboard/products`, `/dashboard/products/new`, `/dashboard/products/[id]/edit`), `npm run test` 31/31, dashboards 307→/login unauthenticated live.
+- **✍️ Phase 1 Cross-check for you (user):** with `npm run dev` on :3000 — sign up → dashboard shows "set up your shop" CTA → onboarding wizard (name/category/province→district/slug with live availability) → Create → auto-redirect to design (template/color/logo) → Save → auto-redirect to products → add single product w/ photos, add via bulk, edit, delete. Then a second account must see NO trace of the first's orders/products (tenant). Optional: `npx prisma studio` → `Store` row has `name/category/city(district)/template/primaryColor/slug`, `Product` rows have `imageUrls`.
+- Then start **Phase 2 — Customer storefront + checkout** (read `docs/PLAN.md` §14 Phase 2). `/dashboard` home + `[shop]/` grid next.
 - Old folder `D:\#helpweb` still on disk (desktop app pins Bash/preview to it → busy). Delete after app restart.
 
 ## Done in Phase 0 (2026-09-13)
@@ -36,6 +37,12 @@ _Last updated: 2026-09-13. Update this file at the END of every session/phase._
 - `src/lib/db.ts` (Prisma+adapter singleton), `src/lib/log.ts`, `docs/PLAN.md` copy, `.npmrc` `allow-scripts=sharp,prisma,@prisma/engines,@prisma/client`.
 - Build: `npm run build` ✓ TypeScript ✓. Auth flow curl-verified: landing 200 / login 200 / signup 200 / dashboard 307→/login (no session) / dashboard 200 (with session).
 
+## Done in Phase 1 (2026-09-13 → 14)
+- Executed from committed plan `docs/superpowers/plans/2026-09-13-phase1-onboarding-products.md` (SDD, 9 tasks, one commit each → `e5647df`).
+- T1 vitest 5 runner + `slugify` (`src/lib/slug.ts`, 6 tests) · T2 `nepal.ts` (7 provinces, 77 districts, province→district maps, 4 tests) · T3 upload infra (`files.ts`: `writeUpload`/`validateImageFile`/`uploadUrl`, uuid filenames, 5MB/6-file caps; `next.config.ts` bodySizeLimit 35mb; 7 tests) · T4 i18n keys (onboarding/design/products, `TranslationKey` parity en↔ne) · T5 `requireStore()` tenant guard (session + owner store, redirects) · T6 onboarding wizard (`schema.ts` object-level district↔province refine, `checkSlug`, 4-step `onboarding-form.tsx` w/ live slug check, `slug-field.tsx`, CTA on dashboard home; 6 tests) · T7 design page (`design-form.tsx` template/color presets/logo, `updateDesign`; consts split to `lib/design.ts` for the `"use server"` non-function-export rule) · T8 product actions (`parse-payload.ts` single+gallery `parseSingleForm`/bulk `parseBulkForm` w/ errorKey:TranslationKey, `createProduct`/`createProducts`/`updateProduct`/`deleteProduct` all tenant-scoped + requireStore-outside-try; 8 tests) · T9 product pages + components (list, quick-add single/bulk, edit w/ `params` Promise + `notFound()`, delete w/ confirm).
+- **Build-time defect found & fixed (T9 ruling):** client `product-form` imported `MAX_PHOTOS_PER_SUBMISSION` from `@/lib/files`, which top-level-imports `node:fs/promises` → Turbopack panic (`chunking context does not support external modules`) on the browser chunk for `/dashboard/products/[id]/edit`. Fix: split the two pure caps to `src/lib/upload-limits.ts`; `files.ts` local-binds + re-exports; client imports the pure module. Existing `@/lib/files` imports unchanged.
+- **Full test suite now 31 tests** (`npm test`): slug 6 + nepal 4 + files 7 + onboarding schema 6 + payload 8.
+
 ## Gotchas / notes for future sessions
 - **Skills** are already installed — do NOT re-install. Verify with `claude plugin list` (8 enabled) + `clean-code`/`refactoring`/`code-complete` load. `static-analysis` needs Semgrep/CodeQL installed as a tool — only when §5.8 first calls for it (after auth/payment/delivery code).
 - `/plugin`, `/compact` etc. are interactive only — not available in the desktop app directly; user runs them via keyboard/terminal.
@@ -45,6 +52,8 @@ _Last updated: 2026-09-13. Update this file at the END of every session/phase._
 - Environment: Windows, bash shell, Node v24.18.0, npm 12.0.1.
 
 ## Review log (§5.8 — one line per review after each phase)
+- **Phase 1 task gates** (per-task reviewer gates 1–9, controller + reviewer): all 9 ✅ APPROVED, 0 Critical/Important. Load-bearing rulings applied: redirect-never-in-try (×3 tasks), `"use server"` async-only exports (design consts split), `errorKey: TranslationKey` (not `string`), cross-field district refine uses object-level `.superRefine` (Zod 4 has no `ctx.parent`), `useRef` needs `| undefined` (React 19), client imports must avoid Node-only modules (upload-limits split).
+- **code-review** (built-in, high effort, whole-phase diff `f9a008d..e5647df`, 2026-09-14): **1 finding (PLAUSIBLE) — FIXED** — slug-field's live availability check probed the raw draft (`sita's fashion`) rather than the slugified submit value → could show "available" while the real slug was taken. Fix (`e5647df`): check `checkSlug(slugify(draft))`. No other findings: tenant scoping on every query, redirects at statement level, React-escaped output (no XSS surface), no `any`/`console.log`/TODO in authored code, i18n parity enforced by types.
 - **differential-review** (Trail of Bits, 2026-09-13, focused-adaptation — greenfield baseline, no prior commit to diff): FIXED — JWT session now expires after 7 days (`maxAge`). ACCEPTED (documented, Phase 3): no login rate-limiting yet (bcrypt compare is a natural throttle; NextAuth doesn't rate-limit built-in); `trustHost:true` for self-hosted dev (drop on Vercel); signup reveals email-exists (standard, matching big platforms). VERIFIED CLEAN: `.env` gitignored, `.env.example` uses placeholders only, no secrets in diff.
 - **supply-chain-risk-auditor** (2026-09-13): npm-native sweep (collector needs `uv`+`gh` — not in this env; coverage = `npm audit` on installed tree). **4 high, 0 critical**, ALL transitive inside Prisma CLI tooling: `deepmerge-ts` (stack-exhaustion merge), `mysql2` (auth-downgrade + zlib-DoS — MySQL only, we are Postgres). npm's offered "fix" = downgrade to `prisma@6.19.3` (major back) — REJECTED. ACTION TRACKED: re-check for a clean fix when bumping to a `prisma@7.x` patch.
 - **clean-code** (ciembor, 2026-09-13): PASS. Minor accepted: login/signup form markup duplication (2 forms, extracting a shared `<Field>` is over-abstraction at this size).
