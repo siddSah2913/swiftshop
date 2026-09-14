@@ -205,6 +205,29 @@ export const en = {
   "customers.orders": "orders",
   "customers.whatsapp": "WhatsApp",
   "customers.waMessage": "Hi! This is {store}.",
+
+  // Delivery hand-off (dashboard — Phase 4)
+  "orders.handToPartner": "Hand to partner",
+  "delivery.title": "Hand to partner",
+  "delivery.partner": "Delivery partner",
+  "delivery.partnerSelf": "Shop delivery (self)",
+  "delivery.partnerNcm": "Nepal Can Move",
+  "delivery.partnerPathao": "Pathao",
+  "delivery.partnerIndrive": "inDrive",
+  "delivery.manifest": "Pickup summary",
+  "delivery.manifestHint": "Copy this and paste it into the partner's app to request pickup.",
+  "delivery.trackingRef": "Tracking reference (optional)",
+  "delivery.copy": "Copy",
+  "delivery.copied": "Copied ✓",
+  "delivery.markHandedOver": "Mark handed over",
+  "delivery.handedTo": "Handed to {partner}",
+  "delivery.tracking": "Tracking",
+  "delivery.partnerRequired": "Choose a delivery partner.",
+  "delivery.invalidTrackingRef": "Tracking reference is too long.",
+  "delivery.whatsappPreview": "WhatsApp message preview",
+  "delivery.sendWhatsApp": "Send on WhatsApp",
+  "delivery.customerHandedMsg": "Hi {store}! Your order #{orderNo} has been handed to {partner}.",
+  "delivery.customerTrackingMsg": " Tracking: {ref}",
 } as const;
 
 /** Type of a dictionary: one string value for every key. */

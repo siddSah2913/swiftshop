@@ -3,6 +3,7 @@
 // ref. Everything here is pure (client + server share it) — no Node/Prisma
 // imports.
 
+import type { TranslationKey } from "@/lib/i18n";
 import { indriveAdapter } from "./indrive";
 import { ncmAdapter } from "./ncm";
 import { pathaoAdapter } from "./pathao";
@@ -45,3 +46,12 @@ export function generateManifest(
 ): string {
   return getDeliveryAdapter(id).generateManifest(ctx);
 }
+
+/** i18n key for each partner's display name (dashboard + WhatsApp message).
+ * Type-only TranslationKey import — stays pure for the client bundle. */
+export const PARTNER_LABEL_KEYS: Record<DeliveryPartnerId, TranslationKey> = {
+  self: "delivery.partnerSelf",
+  ncm: "delivery.partnerNcm",
+  pathao: "delivery.partnerPathao",
+  indrive: "delivery.partnerIndrive",
+};
