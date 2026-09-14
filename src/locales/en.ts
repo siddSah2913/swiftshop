@@ -175,6 +175,13 @@ export const en = {
   "orders.cancelled": "Cancelled",
   "orders.paid": "Paid",
   "orders.unpaid": "Unpaid",
+
+  // Orders list (dashboard — Phase 3)
+  "orders.searchPlaceholder": "Search by name, phone, or order number",
+  "orders.search": "Search",
+  "orders.all": "All",
+  "orders.empty": "No orders yet.",
+  "orders.noMatch": "No orders match — try a different search.",
 } as const;
 
 /** Type of a dictionary: one string value for every key. */

@@ -170,4 +170,11 @@ export const ne: Dict = {
   "orders.cancelled": "रद्द",
   "orders.paid": "भुक्तानी भयो",
   "orders.unpaid": "भुक्तानी बाँकी",
+
+  // Orders list (dashboard — Phase 3)
+  "orders.searchPlaceholder": "नाम, फोन वा अर्डर नम्बर खोज्नुहोस्",
+  "orders.search": "खोज्नुहोस्",
+  "orders.all": "सबै",
+  "orders.empty": "अझै अर्डर छैन।",
+  "orders.noMatch": "मेल खाने अर्डर भेटिएन — अर्को खोजी प्रयास गर्नुहोस्।",
 };
