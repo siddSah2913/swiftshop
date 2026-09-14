@@ -194,4 +194,10 @@ export const ne: Dict = {
   "orders.markDelivered": "डेलिभरी भयो चिन्ह लगाउनुहोस्",
   "orders.markPaid": "भुक्तानी भयो चिन्ह लगाउनुहोस्",
   "orders.whatsapp": "WhatsApp",
+
+  // Customers (dashboard — Phase 3)
+  "customers.empty": "अझै ग्राहक छैनन् — कसैले अर्डर गर्नासाथ यहाँ देखिनेछन्।",
+  "customers.orders": "अर्डर",
+  "customers.whatsapp": "WhatsApp",
+  "customers.waMessage": "नमस्ते! यो {store} हो।",
 };

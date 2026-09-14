@@ -199,6 +199,12 @@ export const en = {
   "orders.markDelivered": "Mark delivered",
   "orders.markPaid": "Mark paid (Received ✓)",
   "orders.whatsapp": "WhatsApp",
+
+  // Customers (dashboard — Phase 3)
+  "customers.empty": "No customers yet — as soon as someone orders, they appear here.",
+  "customers.orders": "orders",
+  "customers.whatsapp": "WhatsApp",
+  "customers.waMessage": "Hi! This is {store}.",
 } as const;
 
 /** Type of a dictionary: one string value for every key. */
