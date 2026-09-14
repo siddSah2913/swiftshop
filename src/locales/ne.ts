@@ -177,4 +177,8 @@ export const ne: Dict = {
   "orders.all": "सबै",
   "orders.empty": "अझै अर्डर छैन।",
   "orders.noMatch": "मेल खाने अर्डर भेटिएन — अर्को खोजी प्रयास गर्नुहोस्।",
+
+  // Orders actions (dashboard — Phase 3)
+  "orders.invalidOrderId": "अमान्य अर्डर।",
+  "orders.invalidAction": "यो अर्डरका लागि यो कार्य अहिले सम्भव छैन।",
 };

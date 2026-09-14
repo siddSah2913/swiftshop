@@ -182,6 +182,10 @@ export const en = {
   "orders.all": "All",
   "orders.empty": "No orders yet.",
   "orders.noMatch": "No orders match — try a different search.",
+
+  // Orders actions (dashboard — Phase 3)
+  "orders.invalidOrderId": "Invalid order.",
+  "orders.invalidAction": "That action isn't available for this order right now.",
 } as const;
 
 /** Type of a dictionary: one string value for every key. */
