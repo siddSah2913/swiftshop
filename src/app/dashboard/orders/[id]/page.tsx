@@ -14,6 +14,14 @@ import {
   type OrderStatus,
   type PaymentStatus,
 } from "@/lib/order-status";
+import {
+  DELIVERY_PARTNER_IDS,
+  PARTNER_LABEL_KEYS,
+  isDeliveryPartnerId,
+} from "@/lib/delivery";
+import type { DeliveryPartnerId } from "@/lib/delivery";
+import { manifestContext } from "@/lib/delivery/manifest-ctx";
+import { HandToPartnerForm } from "@/components/hand-to-partner";
 import { OrderStatusButtons } from "@/components/order-status-buttons";
 
 // Order detail — one order in THIS store's scope. Unknown ids and other
@@ -31,7 +39,7 @@ export default async function OrderDetailPage({
 
   const order = await prisma.order.findFirst({
     where: { id, storeId: store.id },
-    include: { customer: true, items: true },
+    include: { customer: true, items: true, delivery: true },
   });
   if (!order) notFound();
 
@@ -50,6 +58,41 @@ export default async function OrderDetailPage({
     `${t(locale, "order.number")}${order.orderNo} · ` +
     `${t(locale, "product.priceNpr")} ${order.totalNpr.toLocaleString("en-IN")}`;
   const waUrl = buildWaUrl(order.customer.phone, waMessage);
+
+  // Delivery hand-off (Phase 4)
+  const defaultPartner: DeliveryPartnerId = isDeliveryPartnerId(
+    store.deliveryPartner,
+  )
+    ? store.deliveryPartner
+    : "self";
+  const partnerOptions = DELIVERY_PARTNER_IDS.map((id) => ({
+    id,
+    label: t(locale, PARTNER_LABEL_KEYS[id]),
+  }));
+  const canHand = canTransition(status, "handed");
+
+  // WhatsApp preview after the order is with a partner (or delivered): hand-off
+  // message mentioning the order number + tracking ref, auto-created wa.me link.
+  let deliveryPartnerLabel: string | null = null;
+  let handedMessage: string | null = null;
+  if (
+    order.delivery &&
+    (order.delivery.status === "handed" || order.delivery.status === "delivered")
+  ) {
+    deliveryPartnerLabel = isDeliveryPartnerId(order.delivery.partner)
+      ? t(locale, PARTNER_LABEL_KEYS[order.delivery.partner])
+      : order.delivery.partner;
+    handedMessage = t(locale, "delivery.customerHandedMsg")
+      .replace("{store}", store.name)
+      .replace("{orderNo}", String(order.orderNo))
+      .replace("{partner}", deliveryPartnerLabel);
+    if (order.delivery.trackingRef) {
+      handedMessage += t(locale, "delivery.customerTrackingMsg").replace(
+        "{ref}",
+        order.delivery.trackingRef,
+      );
+    }
+  }
 
   return (
     <div>
@@ -135,6 +178,61 @@ export default async function OrderDetailPage({
           </span>
         </p>
       </section>
+
+      {canHand ? (
+        <HandToPartnerForm
+          orderId={order.id}
+          defaultPartner={defaultPartner}
+          manifestCtx={manifestContext(order, store)}
+          partnerOptions={partnerOptions}
+          labels={{
+            title: t(locale, "delivery.title"),
+            partner: t(locale, "delivery.partner"),
+            manifest: t(locale, "delivery.manifest"),
+            manifestHint: t(locale, "delivery.manifestHint"),
+            trackingRef: t(locale, "delivery.trackingRef"),
+            copy: t(locale, "delivery.copy"),
+            copied: t(locale, "delivery.copied"),
+            markHandedOver: t(locale, "delivery.markHandedOver"),
+          }}
+        />
+      ) : null}
+
+      {deliveryPartnerLabel ? (
+        <section className="mt-4 rounded-lg border border-zinc-200 bg-white p-4">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            {t(locale, "delivery.status")}
+          </h2>
+          <p className="mt-2 text-sm font-medium text-zinc-900">
+            {t(locale, "delivery.handedTo").replace(
+              "{partner}",
+              deliveryPartnerLabel,
+            )}
+          </p>
+          {order.delivery?.trackingRef ? (
+            <p className="mt-1 text-sm text-zinc-600">
+              {t(locale, "delivery.tracking")}: {order.delivery.trackingRef}
+            </p>
+          ) : null}
+        </section>
+      ) : null}
+
+      {handedMessage ? (
+        <section className="mt-4 rounded-lg border border-zinc-200 bg-white p-4">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            {t(locale, "delivery.whatsappPreview")}
+          </h2>
+          <p className="mt-2 text-sm text-zinc-700">{handedMessage}</p>
+          <a
+            href={buildWaUrl(order.customer.phone, handedMessage)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-block rounded-md bg-[#25D366] px-3 py-2 text-sm font-medium text-white hover:bg-[#1ebe5b]"
+          >
+            {t(locale, "delivery.sendWhatsApp")}
+          </a>
+        </section>
+      ) : null}
 
       <div className="mt-6">
         <OrderStatusButtons

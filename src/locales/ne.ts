@@ -217,6 +217,7 @@ export const ne: Dict = {
   "delivery.markHandedOver": "सुम्पिएँ चिन्ह लगाउनुहोस्",
   "delivery.handedTo": "{partner} लाई सुम्पिएको",
   "delivery.tracking": "ट्र्याकिङ",
+  "delivery.status": "डेलिभरी",
   "delivery.partnerRequired": "डेलिभरी पार्टनर छान्नुहोस्।",
   "delivery.invalidTrackingRef": "ट्र्याकिङ रेफरेन्स धेरै लामो छ।",
   "delivery.whatsappPreview": "WhatsApp सन्देश पूर्वावलोकन",

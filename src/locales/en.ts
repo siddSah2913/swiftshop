@@ -222,6 +222,7 @@ export const en = {
   "delivery.markHandedOver": "Mark handed over",
   "delivery.handedTo": "Handed to {partner}",
   "delivery.tracking": "Tracking",
+  "delivery.status": "Delivery",
   "delivery.partnerRequired": "Choose a delivery partner.",
   "delivery.invalidTrackingRef": "Tracking reference is too long.",
   "delivery.whatsappPreview": "WhatsApp message preview",
