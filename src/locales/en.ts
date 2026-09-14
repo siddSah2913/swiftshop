@@ -127,6 +127,7 @@ export const en = {
   "product.backToShop": "← Back to shop",
 
   // Cart
+  "cart.nav": "Cart",
   "cart.title": "Your cart",
   "cart.empty": "Your cart is empty.",
   "cart.removeItem": "Remove",

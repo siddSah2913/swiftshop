@@ -45,6 +45,7 @@ export default async function StorePage({ params }: Props) {
               key={p.id}
               product={p}
               storeSlug={slug}
+              primaryColor={store.primaryColor}
               priceLabel={t(locale, "product.priceNpr")}
               addToCartLabel={t(locale, "product.addToCart")}
               addedLabel={t(locale, "product.added")}

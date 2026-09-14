@@ -33,7 +33,7 @@ export function AddToCartButton({
       <input type="hidden" name="productId" value={productId} />
       <button
         type="submit"
-        disabled={pending || state.ok}
+        disabled={pending}
         className="w-full rounded-md px-3 py-2 text-sm font-medium text-white transition disabled:opacity-70"
         style={{ backgroundColor: state.ok ? "#16a34a" : primaryColor }}
       >

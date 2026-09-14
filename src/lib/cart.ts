@@ -11,7 +11,8 @@ export type CartMap = Record<string, number>;
 const MAX_QTY = 9;
 const MIN_QTY = 1;
 const MAX_LINES = 20;
-const ID_RE = /^[a-zA-Z0-9-]{1,64}$/;
+/** Valid product id — matches Prisma cuid strings (shared with cart actions). */
+export const ID_RE = /^[a-zA-Z0-9-]{1,64}$/;
 
 /**
  * Parse the cart cookie value into a validated CartMap.
@@ -36,9 +37,10 @@ export function parseCartCookie(value: string | null): CartMap {
 
       const q = Number(qty);
       if (typeof qty !== "number" || !Number.isInteger(q)) continue;
-      const clamped = Math.max(MIN_QTY, Math.min(MAX_QTY, q));
+      // q <= 0 means "remove this line" — drop it, don't clamp it to a real order.
+      if (q < MIN_QTY) continue;
 
-      cart[id] = clamped;
+      cart[id] = Math.min(MAX_QTY, q);
       count++;
     }
 

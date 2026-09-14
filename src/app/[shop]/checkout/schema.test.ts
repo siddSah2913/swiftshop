@@ -87,6 +87,14 @@ describe("checkoutSchema", () => {
     expect(result.success).toBe(false);
   });
 
+  it("rejects an empty payment type with the i18n key", () => {
+    const result = checkoutSchema.safeParse({ ...valid, paymentType: "" });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe("checkout.invalidPayment");
+    }
+  });
+
   it("rejects an unknown payment type", () => {
     const result = checkoutSchema.safeParse({
       ...valid,

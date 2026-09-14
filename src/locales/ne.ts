@@ -122,6 +122,7 @@ export const ne: Dict = {
   "product.backToShop": "← पसलमा फर्कनुहोस्",
 
   // Cart
+  "cart.nav": "कार्ट",
   "cart.title": "तपाईंको कार्ट",
   "cart.empty": "तपाईंको कार्ट खाली छ।",
   "cart.removeItem": "हटाउनुहोस्",

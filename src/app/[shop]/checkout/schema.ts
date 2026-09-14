@@ -27,8 +27,10 @@ export const checkoutSchema = z
       .max(200, "checkout.invalidAddress"),
     // Kept a plain string: Zod 4.6's enum errorMap isn't applied to enum
     // issues, so membership + the i18n key live in superRefine below — the
-    // same pattern onboarding's cross-field checks use.
-    paymentType: z.string().min(1),
+    // same pattern onboarding's cross-field checks use. No `.min(1)` here:
+    // the empty string isn't in PAYMENT_TYPES, so it must fall through to the
+    // superRefine message (a `TranslationKey`), not a Zod English default.
+    paymentType: z.string(),
   })
   .superRefine((data, ctx) => {
     if (!PAYMENT_TYPES.includes(data.paymentType as PaymentType)) {

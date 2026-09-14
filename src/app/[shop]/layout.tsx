@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/db";
 import { parseCartCookie, CART_COOKIE } from "@/lib/cart";
+import { getLocale, t } from "@/lib/i18n";
 import { StorefrontHeader } from "@/components/storefront-header";
 import type { Metadata } from "next";
 
@@ -39,6 +40,8 @@ export default async function StorefrontLayout({ params, children }: Props) {
 
   if (!store) notFound();
 
+  const locale = getLocale((await cookies()).get("locale")?.value);
+
   // Read cart cookie for badge count
   const cookieStore = await cookies();
   const cartValue = cookieStore.get(CART_COOKIE)?.value ?? null;
@@ -53,6 +56,7 @@ export default async function StorefrontLayout({ params, children }: Props) {
         logoUrl={store.logoUrl}
         primaryColor={store.primaryColor}
         cartCount={cartCount}
+        cartLabel={t(locale, "cart.nav")}
       />
       <main className="mx-auto max-w-5xl px-4 py-6">{children}</main>
     </div>

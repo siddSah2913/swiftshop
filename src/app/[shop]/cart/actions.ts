@@ -9,6 +9,7 @@ import {
   parseCartCookie,
   serializeCart,
   CART_COOKIE,
+  ID_RE,
   type CartMap,
 } from "@/lib/cart";
 
@@ -36,15 +37,13 @@ async function writeCart(cart: CartMap): Promise<void> {
   }
 }
 
-const PRODUCT_ID_RE = /^[a-zA-Z0-9-]{1,64}$/;
-
 export async function addToCartItem(
   _prev: CartActionState,
   fd: FormData,
 ): Promise<CartActionState> {
   const productId = String(fd.get("productId") ?? "");
 
-  if (!PRODUCT_ID_RE.test(productId)) {
+  if (!ID_RE.test(productId)) {
     return { error: "Invalid product." };
   }
 
@@ -63,7 +62,7 @@ export async function setCartQty(
   const productId = String(fd.get("productId") ?? "");
   const qty = Number(fd.get("qty"));
 
-  if (!PRODUCT_ID_RE.test(productId)) {
+  if (!ID_RE.test(productId)) {
     return { error: "Invalid product." };
   }
 

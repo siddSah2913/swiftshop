@@ -8,6 +8,7 @@ import { AddToCartButton } from "@/components/add-to-cart";
 type Props = {
   product: ProductModel;
   storeSlug: string;
+  primaryColor: string;
   priceLabel: string;
   addToCartLabel: string;
   addedLabel: string;
@@ -16,6 +17,7 @@ type Props = {
 export function ProductCard({
   product,
   storeSlug,
+  primaryColor,
   priceLabel,
   addToCartLabel,
   addedLabel,
@@ -50,7 +52,7 @@ export function ProductCard({
           productId={product.id}
           label={addToCartLabel}
           addedLabel={addedLabel}
-          primaryColor="var(--brand, #0F766E)"
+          primaryColor={primaryColor}
         />
       </div>
     </div>

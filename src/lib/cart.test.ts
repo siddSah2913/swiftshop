@@ -33,10 +33,10 @@ describe("parseCartCookie", () => {
     expect(cart).toEqual({ "valid-id": 1 });
   });
 
-  it("clamps qty to 1..9", () => {
+  it("drops qty 0 and clamps qty to 1..9", () => {
     const raw = { a: 0, b: 15, c: 5 };
     const cart = parseCartCookie(encodeURIComponent(JSON.stringify(raw)));
-    expect(cart).toEqual({ a: 1, b: 9, c: 5 });
+    expect(cart).toEqual({ b: 9, c: 5 });
   });
 
   it("caps at 20 distinct products", () => {

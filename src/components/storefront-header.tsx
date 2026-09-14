@@ -9,6 +9,7 @@ type Props = {
   logoUrl: string | null;
   primaryColor: string;
   cartCount: number;
+  cartLabel: string;
 };
 
 export function StorefrontHeader({
@@ -17,6 +18,7 @@ export function StorefrontHeader({
   logoUrl,
   primaryColor,
   cartCount,
+  cartLabel,
 }: Props) {
   return (
     <header
@@ -50,7 +52,7 @@ export function StorefrontHeader({
           href={`/${storeSlug}/cart`}
           className="relative flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100"
         >
-          🛒 Cart
+          🛒 {cartLabel}
           {cartCount > 0 ? (
             <span
               className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-bold text-white"

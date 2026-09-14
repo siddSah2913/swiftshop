@@ -15,6 +15,18 @@ import { log } from "@/lib/log";
 
 export type CheckoutFormState = { error?: string };
 
+/** Prisma code P2002 = unique-constraint violation (orderNo collision under
+ *  concurrent checkouts). Structural check so it survives adapter-wrapped
+ *  errors where `instanceof` across copies can fail. */
+function isUniqueViolation(e: unknown): boolean {
+  return (
+    typeof e === "object" &&
+    e !== null &&
+    "code" in e &&
+    (e as { code?: unknown }).code === "P2002"
+  );
+}
+
 export async function placeOrder(
   _prev: CheckoutFormState,
   fd: FormData,
@@ -89,66 +101,86 @@ export async function placeOrder(
 
   // 4. DB write in ONE transaction — the callback returns the new orderNo so
   //    the redirect target is typed (never an unassigned outer variable).
+  //    orderNo = max+1 is a read-then-write: two simultaneous checkouts could
+  //    pick the same number. @@unique([storeId, orderNo]) makes the loser fail
+  //    cleanly (no corruption) — retry that collision a bounded few times.
   let orderNo: number | null = null;
   try {
-    orderNo = await prisma.$transaction(async (tx): Promise<number> => {
-      // Find or create Customer (dedupe by storeId + phone)
-      let customer = await tx.customer.findFirst({
-        where: { storeId: store.id, phone },
-        select: { id: true },
-      });
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        orderNo = await prisma.$transaction(async (tx): Promise<number> => {
+          // Find or create Customer (dedupe by storeId + phone). When the
+          // customer already exists, store their fresh address/name too — the
+          // address on file is the only one the seller sees at handoff, so a
+          // returning customer's new address must not be silently lost.
+          let customer = await tx.customer.findFirst({
+            where: { storeId: store.id, phone },
+            select: { id: true },
+          });
 
-      if (!customer) {
-        customer = await tx.customer.create({
-          data: { storeId: store.id, name, phone, address },
-          select: { id: true },
+          if (!customer) {
+            customer = await tx.customer.create({
+              data: { storeId: store.id, name, phone, address },
+              select: { id: true },
+            });
+          } else {
+            customer = await tx.customer.update({
+              where: { id: customer.id },
+              data: { address, name },
+              select: { id: true },
+            });
+          }
+
+          // Compute next orderNo (max + 1 for this store)
+          const lastOrder = await tx.order.findFirst({
+            where: { storeId: store.id },
+            orderBy: { orderNo: "desc" },
+            select: { orderNo: true },
+          });
+          const nextOrderNo = (lastOrder?.orderNo ?? 0) + 1;
+
+          // Create Order
+          const order = await tx.order.create({
+            data: {
+              storeId: store.id,
+              customerId: customer.id,
+              orderNo: nextOrderNo,
+              totalNpr,
+              paymentType,
+              paymentStatus: "unpaid",
+              status: "new",
+            },
+            select: { id: true, orderNo: true },
+          });
+
+          // Create OrderItems (snapshotted name + price)
+          await tx.orderItem.createMany({
+            data: lines.map((l) => ({
+              orderId: order.id,
+              productId: l.productId,
+              name: l.name,
+              priceNpr: l.priceNpr,
+              qty: l.qty,
+            })),
+          });
+
+          // Create Delivery (ready for handoff)
+          await tx.delivery.create({
+            data: {
+              orderId: order.id,
+              partner: "self",
+              status: "ready",
+            },
+          });
+
+          return order.orderNo;
         });
+        break;
+      } catch (attemptErr) {
+        if (isUniqueViolation(attemptErr) && attempt < 2) continue;
+        throw attemptErr;
       }
-
-      // Compute next orderNo (max + 1 for this store)
-      const lastOrder = await tx.order.findFirst({
-        where: { storeId: store.id },
-        orderBy: { orderNo: "desc" },
-        select: { orderNo: true },
-      });
-      const nextOrderNo = (lastOrder?.orderNo ?? 0) + 1;
-
-      // Create Order
-      const order = await tx.order.create({
-        data: {
-          storeId: store.id,
-          customerId: customer.id,
-          orderNo: nextOrderNo,
-          totalNpr,
-          paymentType,
-          paymentStatus: "unpaid",
-          status: "new",
-        },
-        select: { id: true, orderNo: true },
-      });
-
-      // Create OrderItems (snapshotted name + price)
-      await tx.orderItem.createMany({
-        data: lines.map((l) => ({
-          orderId: order.id,
-          productId: l.productId,
-          name: l.name,
-          priceNpr: l.priceNpr,
-          qty: l.qty,
-        })),
-      });
-
-      // Create Delivery (ready for handoff)
-      await tx.delivery.create({
-        data: {
-          orderId: order.id,
-          partner: "self",
-          status: "ready",
-        },
-      });
-
-      return order.orderNo;
-    });
+    }
   } catch (e) {
     log("checkout:placeOrder", e);
     return { error: t(locale, "common.error") };
