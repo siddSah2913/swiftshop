@@ -186,6 +186,19 @@ export const en = {
   // Orders actions (dashboard — Phase 3)
   "orders.invalidOrderId": "Invalid order.",
   "orders.invalidAction": "That action isn't available for this order right now.",
+
+  // Order detail (dashboard — Phase 3)
+  "orders.items": "Items",
+  "orders.customer": "Customer",
+  "orders.phone": "Phone",
+  "orders.address": "Address",
+  "orders.payment": "Payment",
+  "orders.placedOn": "Placed",
+  "orders.backToList": "← Back to orders",
+  "orders.confirm": "Confirm order",
+  "orders.markDelivered": "Mark delivered",
+  "orders.markPaid": "Mark paid (Received ✓)",
+  "orders.whatsapp": "WhatsApp",
 } as const;
 
 /** Type of a dictionary: one string value for every key. */

@@ -181,4 +181,17 @@ export const ne: Dict = {
   // Orders actions (dashboard — Phase 3)
   "orders.invalidOrderId": "अमान्य अर्डर।",
   "orders.invalidAction": "यो अर्डरका लागि यो कार्य अहिले सम्भव छैन।",
+
+  // Order detail (dashboard — Phase 3)
+  "orders.items": "वस्तुहरू",
+  "orders.customer": "ग्राहक",
+  "orders.phone": "फोन",
+  "orders.address": "ठेगाना",
+  "orders.payment": "भुक्तानी",
+  "orders.placedOn": "अर्डर भएको",
+  "orders.backToList": "← अर्डरहरूमा फर्कनुहोस्",
+  "orders.confirm": "अर्डर पक्का गर्नुहोस्",
+  "orders.markDelivered": "डेलिभरी भयो चिन्ह लगाउनुहोस्",
+  "orders.markPaid": "भुक्तानी भयो चिन्ह लगाउनुहोस्",
+  "orders.whatsapp": "WhatsApp",
 };
