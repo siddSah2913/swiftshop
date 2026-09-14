@@ -33,8 +33,11 @@ export function SlugField({
 
   useEffect(() => {
     clearTimeout(timerRef.current);
-    const clean = draft.trim().toLowerCase();
-    if (!clean) {
+    // Check the slugified value — the exact string the form submits on blur —
+    // not the raw draft. "Sita's Fashion" must probe "sitas-fashion", else the
+    // live hint would always say available and the server would reject at submit.
+    const clean = slugify(draft);
+    if (!clean || clean === "shop") {
       setStatus("idle");
       return;
     }
