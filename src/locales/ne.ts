@@ -222,6 +222,6 @@ export const ne: Dict = {
   "delivery.invalidTrackingRef": "ट्र्याकिङ रेफरेन्स धेरै लामो छ।",
   "delivery.whatsappPreview": "WhatsApp सन्देश पूर्वावलोकन",
   "delivery.sendWhatsApp": "WhatsApp मा पठाउनुहोस्",
-  "delivery.customerHandedMsg": "नमस्ते {store}! तपाईंको अर्डर #{orderNo} {partner} लाई सुम्पिएको छ।",
+  "delivery.customerHandedMsg": "नमस्ते {customer}! तपाईंको अर्डर #{orderNo} {store} बाट {partner} लाई सुम्पिएको छ।",
   "delivery.customerTrackingMsg": " ट्र्याकिङ: {ref}",
 };

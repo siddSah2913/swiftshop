@@ -6,7 +6,7 @@
 // that gets persisted), copy it, add an optional tracking ref, then submit to
 // handToPartner. All labels arrive server-translated as props.
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { generateManifest, isDeliveryPartnerId } from "@/lib/delivery";
 import type { DeliveryPartnerId, ManifestContext } from "@/lib/delivery";
 import {
@@ -47,6 +47,15 @@ export function HandToPartnerForm({
     isDeliveryPartnerId(defaultPartner) ? defaultPartner : "self",
   );
   const [copied, setCopied] = useState(false);
+  // Reset timer for the "Copied ✓" label; cleared on reset and on unmount so a
+  // stale timer never flips the label after a re-click or a submit.
+  const copiedTimer = useRef<number | null>(null);
+  useEffect(
+    () => () => {
+      if (copiedTimer.current !== null) window.clearTimeout(copiedTimer.current);
+    },
+    [],
+  );
 
   const [state, action, pending] = useActionState(
     (_prev: OrdersActionState, _fd: FormData) =>
@@ -57,11 +66,16 @@ export function HandToPartnerForm({
   const manifest = generateManifest(partner, manifestCtx);
 
   const copyManifest = () => {
+    // navigator.clipboard is undefined on insecure origins — reading it inside
+    // the handler would throw synchronously before the .catch exists to absorb
+    // it. The manifest text stays on screen either way.
+    if (!navigator.clipboard) return;
     void navigator.clipboard
       .writeText(manifest)
       .then(() => {
         setCopied(true);
-        window.setTimeout(() => setCopied(false), 2000);
+        if (copiedTimer.current !== null) window.clearTimeout(copiedTimer.current);
+        copiedTimer.current = window.setTimeout(() => setCopied(false), 2000);
       })
       .catch(() => {
         /* clipboard unavailable (http/permissions) — the text is still on screen */

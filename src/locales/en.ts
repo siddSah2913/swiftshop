@@ -227,7 +227,7 @@ export const en = {
   "delivery.invalidTrackingRef": "Tracking reference is too long.",
   "delivery.whatsappPreview": "WhatsApp message preview",
   "delivery.sendWhatsApp": "Send on WhatsApp",
-  "delivery.customerHandedMsg": "Hi {store}! Your order #{orderNo} has been handed to {partner}.",
+  "delivery.customerHandedMsg": "Hi {customer}! Your order #{orderNo} from {store} has been handed to {partner}.",
   "delivery.customerTrackingMsg": " Tracking: {ref}",
 } as const;
 

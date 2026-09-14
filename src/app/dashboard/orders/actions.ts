@@ -8,9 +8,9 @@ import { requireStore } from "@/lib/require-store";
 import { getLocale, t, type TranslationKey } from "@/lib/i18n";
 import { generateManifest } from "@/lib/delivery";
 import type { DeliveryPartnerId } from "@/lib/delivery";
+import { manifestContext } from "@/lib/delivery/manifest-ctx";
 import { log } from "@/lib/log";
 import {
-  canTransition,
   deliveredPaymentUpdate,
   isOrderStatus,
   transitionOrder,
@@ -29,7 +29,19 @@ async function locale() {
   return getLocale((await cookies()).get("swiftshop_lang")?.value ?? null);
 }
 
+/** Prisma P2025 — "record required but not found". In handToPartner this means
+ * the compound-where CAS missed: the order left `confirmed` between our read
+ * and this write, so we refuse rather than clobber the lost-update loser. */
+function isPrismaNotFound(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    (error as { code?: string }).code === "P2025"
+  );
+}
+
 type ActionOrder = {
+  id: string;
   status: string;
   paymentType: string;
   paymentStatus: string;
@@ -100,7 +112,16 @@ export async function confirmOrder(
   orderId: string,
 ): Promise<OrdersActionState> {
   return runAction(orderId, (order) => {
-    if (!isOrderStatus(order.status) || !canTransition(order.status, "confirmed")) {
+    if (!isOrderStatus(order.status)) {
+      return { kind: "error", error: "orders.invalidAction" };
+    }
+    const step = transitionOrder(order.status, "confirmed");
+    if (!step.ok) {
+      log("orders:confirm:rejected", {
+        orderId: order.id,
+        from: order.status,
+        reason: step.reason,
+      });
       return { kind: "error", error: "orders.invalidAction" };
     }
     return { kind: "update", status: "confirmed" };
@@ -116,9 +137,19 @@ export async function markDelivered(
   orderId: string,
 ): Promise<OrdersActionState> {
   return runAction(orderId, (order) => {
-    if (!isOrderStatus(order.status) || !canTransition(order.status, "delivered")) {
+    if (!isOrderStatus(order.status)) {
       return { kind: "error", error: "orders.invalidAction" };
     }
+    const step = transitionOrder(order.status, "delivered");
+    if (!step.ok) {
+      log("orders:markDelivered:rejected", {
+        orderId: order.id,
+        from: order.status,
+        reason: step.reason,
+      });
+      return { kind: "error", error: "orders.invalidAction" };
+    }
+    const now = new Date();
     return {
       kind: "update",
       status: "delivered",
@@ -126,8 +157,8 @@ export async function markDelivered(
         order.paymentType,
         order.paymentStatus as PaymentStatus,
       ),
-      deliveredAt: new Date(),
-      delivery: { status: "delivered", deliveredAt: new Date() },
+      deliveredAt: now,
+      delivery: { status: "delivered", deliveredAt: now },
     };
   });
 }
@@ -196,27 +227,14 @@ export async function handToPartner(
     }
 
     const partner = parsed.data.partner as DeliveryPartnerId;
-    const manifest = generateManifest(partner, {
-      order: {
-        orderNo: order.orderNo,
-        totalNpr: order.totalNpr,
-        paymentType: order.paymentType,
-        items: order.items.map((i) => ({
-          name: i.name,
-          qty: i.qty,
-          priceNpr: i.priceNpr,
-        })),
-      },
-      customer: {
-        name: order.customer.name,
-        phone: order.customer.phone,
-        address: order.customer.address,
-      },
-      store: { name: store.name, slug: store.slug },
-    });
+    const manifest = generateManifest(partner, manifestContext(order, store));
 
+    // Compound-where CAS: only write when the order is STILL confirmed. Between
+    // the transitionOrder read above and this write a concurrent hand-off (or
+    // cancel) may have landed — an unconditional update would then silently
+    // clobber the other party's partner/manifest/ref, so we refuse instead.
     await prisma.order.update({
-      where: { id: order.id },
+      where: { id: order.id, status: "confirmed" },
       data: {
         status: "handed",
         delivery: {
@@ -231,6 +249,10 @@ export async function handToPartner(
       },
     });
   } catch (error) {
+    if (isPrismaNotFound(error)) {
+      log("orders:handToPartner:stale", { orderId: parsedOrder.data.orderId });
+      return { error: t(loc, "orders.invalidAction") };
+    }
     log("orders:handToPartner", error);
     return { error: t(loc, "common.error") };
   }

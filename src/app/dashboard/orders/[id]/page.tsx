@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { requireStore } from "@/lib/require-store";
 import { prisma } from "@/lib/db";
 import { getLocale, t } from "@/lib/i18n";
+import { buildHandoffMessage } from "@/lib/handoff-message";
 import { buildWaUrl } from "@/lib/whatsapp";
 import {
   ORDER_STATUS_BADGE,
@@ -82,16 +83,14 @@ export default async function OrderDetailPage({
     deliveryPartnerLabel = isDeliveryPartnerId(order.delivery.partner)
       ? t(locale, PARTNER_LABEL_KEYS[order.delivery.partner])
       : order.delivery.partner;
-    handedMessage = t(locale, "delivery.customerHandedMsg")
-      .replace("{store}", store.name)
-      .replace("{orderNo}", String(order.orderNo))
-      .replace("{partner}", deliveryPartnerLabel);
-    if (order.delivery.trackingRef) {
-      handedMessage += t(locale, "delivery.customerTrackingMsg").replace(
-        "{ref}",
-        order.delivery.trackingRef,
-      );
-    }
+    handedMessage = buildHandoffMessage({
+      locale,
+      customerName: order.customer.name,
+      storeName: store.name,
+      orderNo: order.orderNo,
+      partnerLabel: deliveryPartnerLabel,
+      trackingRef: order.delivery.trackingRef,
+    });
   }
 
   return (
