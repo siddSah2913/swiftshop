@@ -1,7 +1,9 @@
-// Order status machine (Phase 3 v1).
-// v1 simplification: new→confirmed→delivered, and handed→delivered for orders
-// that arrived in a handed state. The full machine (reaching `handed` and
-// `cancelled` from real transitions) ships in Phase 4.
+// Order status machine (Phase 4 — full machine).
+// Legal flow: new→confirmed→handed→delivered, with cancel reachable from
+// `new` and `confirmed`. Once an order is handed to a partner, it can only be
+// delivered; delivered and cancelled are terminal. `transitionOrder()` is the
+// single enforcement point used by the server actions — anything that isn't
+// in the map is rejected with a reason the caller logs.
 
 import type { TranslationKey } from "@/lib/i18n";
 
@@ -37,18 +39,42 @@ export function isOrderStatus(v: string): v is OrderStatus {
   return (ORDER_STATUSES as readonly string[]).includes(v);
 }
 
-/** v1 allowed transitions. See the file header for the Phase 4 plan. */
-const PHASE3_ALLOWED: Record<OrderStatus, readonly OrderStatus[]> = {
-  new: ["confirmed"],
-  confirmed: ["delivered"],
+/** The full Phase 4 transition map (single source of truth). */
+const ALLOWED: Record<OrderStatus, readonly OrderStatus[]> = {
+  new: ["confirmed", "cancelled"],
+  confirmed: ["handed", "cancelled"],
   handed: ["delivered"],
   delivered: [],
   cancelled: [],
 };
 
-/** Is `from → to` a valid move in the current machine? */
+export type OrderTransitionFailure =
+  | "from-unknown"
+  | "to-unknown"
+  | "not-allowed";
+
+export type TransitionResult =
+  | { ok: true }
+  | { ok: false; reason: OrderTransitionFailure };
+
+/**
+ * Enforce a single step of the flow. Returns the reason an order can't move so
+ * the caller can log it ("from/to not an OrderStatus", or the jump isn't in
+ * ALLOWED). Pure — no side effects; callers decide what to log.
+ */
+export function transitionOrder(
+  from: OrderStatus,
+  to: OrderStatus,
+): TransitionResult {
+  if (!isOrderStatus(from)) return { ok: false, reason: "from-unknown" };
+  if (!isOrderStatus(to)) return { ok: false, reason: "to-unknown" };
+  if (!ALLOWED[from].includes(to)) return { ok: false, reason: "not-allowed" };
+  return { ok: true };
+}
+
+/** Is `from → to` a valid move in the machine? (UI buttons derive from this.) */
 export function canTransition(from: OrderStatus, to: OrderStatus): boolean {
-  return PHASE3_ALLOWED[from].includes(to);
+  return transitionOrder(from, to).ok;
 }
 
 /**
