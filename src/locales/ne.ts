@@ -13,6 +13,11 @@ export const ne: Dict = {
   "nav.signUp": "मेरो पसल बनाउनुहोस्",
   "nav.signOut": "लगआउट",
   "nav.dashboard": "ड्यासबोर्ड",
+  "nav.orders": "अर्डरहरू",
+  "nav.products": "उत्पादनहरू",
+  "nav.customers": "ग्राहकहरू",
+  "nav.more": "थप",
+  "nav.viewShop": "मेरो पसल हेर्नुहोस्",
 
   // Landing page
   "home.hero": "आफ्नै पसल, केही मिनेटमा।",
@@ -157,6 +162,10 @@ export const ne: Dict = {
   "order.thankYou": "तपाईंको अर्डरका लागि धन्यवाद। पक्का गर्न हामी फोन गर्छौं।",
   "order.whatsapp": "WhatsApp मा सन्देश पठाउनुहोस्",
   "order.backToShop": "← पसलमा फर्कनुहोस्",
+
+  // More page (dashboard settings / overflow)
+  "more.title": "थप",
+  "more.subtitle": "उपकरण र पसल सेटअप",
 
   // Order statuses (dashboard — Phase 3)
   "orders.new": "नयाँ",

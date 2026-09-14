@@ -12,6 +12,11 @@ export const en = {
   "nav.signUp": "Create my shop",
   "nav.signOut": "Sign out",
   "nav.dashboard": "Dashboard",
+  "nav.orders": "Orders",
+  "nav.products": "Products",
+  "nav.customers": "Customers",
+  "nav.more": "More",
+  "nav.viewShop": "View my shop",
 
   // Landing page
   "home.hero": "Own your shop. In minutes.",
@@ -162,6 +167,10 @@ export const en = {
   "order.thankYou": "Thank you for your order. We'll call you to confirm.",
   "order.whatsapp": "Message us on WhatsApp",
   "order.backToShop": "← Back to shop",
+
+  // More page (dashboard settings / overflow)
+  "more.title": "More",
+  "more.subtitle": "Tools and shop setup",
 
   // Order statuses (dashboard — Phase 3)
   "orders.new": "New",
