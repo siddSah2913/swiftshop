@@ -34,6 +34,9 @@ model Store {
   logoUrl        String?
   tagline        String?
   paymentCod     Boolean @default(true)
+  paymentEsewa   Boolean @default(false)
+  paymentKhalti  Boolean @default(false)
+  requirePayToDeliver Boolean @default(false)
   qrImageUrl     String? // owner's eSewa/Khalti/Fonepay QR photo
   deliveryPartner String @default("self") // self | ncm | pathao | indrive
   courierAccountNo String?
@@ -86,8 +89,10 @@ model Order {
   customerId    String
   items         OrderItem[]
   totalNpr      Int // snapshot total at purchase time
-  paymentType   String @default("cod") // cod | qr | (later: esewa|khalti)
+  paymentType   String @default("cod") // cod | qr | esewa | khalti
   paymentStatus String @default("unpaid") // unpaid|paid
+  paymentRef    String?
+  paidAt        DateTime?
   delivery      Delivery?
   deliveredAt   DateTime?
   createdAt     DateTime @default(now())
