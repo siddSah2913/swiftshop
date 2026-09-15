@@ -45,6 +45,7 @@ type ActionOrder = {
   status: string;
   paymentType: string;
   paymentStatus: string;
+  requirePayToDeliver: boolean; // from the caller's store — attached in runAction below
 };
 
 type Update = {
@@ -80,7 +81,7 @@ async function runAction(
     });
     if (!order) return { error: t(loc, "orders.invalidOrderId") };
 
-    const result = apply(order);
+    const result = apply({ ...order, requirePayToDeliver: store.requirePayToDeliver });
     if (result.kind === "error") return { error: t(loc, result.error) };
 
     const data: Prisma.OrderUpdateInput = {};
@@ -139,6 +140,14 @@ export async function markDelivered(
   return runAction(orderId, (order) => {
     if (!isOrderStatus(order.status)) {
       return { kind: "error", error: "orders.invalidAction" };
+    }
+    // requirePayToDeliver gate — refuse delivery for unpaid non-COD orders
+    if (
+      order.paymentStatus === "unpaid" &&
+      order.paymentType !== "cod" &&
+      order.requirePayToDeliver
+    ) {
+      return { kind: "error", error: "orders.paymentRequired" };
     }
     const step = transitionOrder(order.status, "delivered");
     if (!step.ok) {
