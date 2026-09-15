@@ -1,9 +1,9 @@
 "use client";
 
-// Checkout form — useActionState with placeOrder bound to slug.
-// See Phase 2 spec §10.
+// Checkout form — calls placeOrder via startTransition so the redirectUrl
+// return path works reliably.  See Phase 2 spec §10.
 
-import { useEffect, useActionState } from "react";
+import { useState, useTransition } from "react";
 import {
   placeOrder,
   type CheckoutFormState,
@@ -54,20 +54,24 @@ export function CheckoutForm({
   availableMethods,
   labels,
 }: Props) {
-  const [state, action, pending] = useActionState(
-    (prev: CheckoutFormState, fd: FormData) => placeOrder(prev, fd, slug),
-    {} as CheckoutFormState,
-  );
+  const [state, setState] = useState<CheckoutFormState>({});
+  const [pending, startTransition] = useTransition();
 
   const redirecting = !!state.redirectUrl;
-  useEffect(() => {
-    if (state.redirectUrl) {
-      window.location.href = state.redirectUrl;
-    }
-  }, [state.redirectUrl]);
+
+  function handleSubmit(formData: FormData) {
+    startTransition(async () => {
+      const result = await placeOrder({} as CheckoutFormState, formData, slug);
+      if (result.redirectUrl) {
+        window.location.href = result.redirectUrl;
+      } else {
+        setState(result);
+      }
+    });
+  }
 
   return (
-    <form action={action} className="space-y-4">
+    <form action={handleSubmit} className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-zinc-700">
           {labels.name}
