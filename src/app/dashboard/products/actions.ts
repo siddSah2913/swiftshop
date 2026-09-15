@@ -41,6 +41,21 @@ export async function createProduct(
         caption: parsed.data.caption,
         priceNpr: parsed.data.priceNpr,
         imageUrls,
+        optionGroups: {
+          create: parsed.data.optionSets.map((g, gi) => ({
+            storeId: store.id,
+            name: g.name,
+            sortOrder: gi,
+            options: {
+              create: g.options.map((o, oi) => ({
+                storeId: store.id,
+                name: o.name,
+                stock: o.stock,
+                sortOrder: oi,
+              })),
+            },
+          })),
+        },
       },
     });
   } catch (error) {
@@ -120,6 +135,22 @@ export async function updateProduct(
         priceNpr: parsed.data.priceNpr,
         imageUrls: {
           set: [...existing.imageUrls.filter((u) => !removed.includes(u)), ...added],
+        },
+        optionGroups: {
+          deleteMany: {},
+          create: parsed.data.optionSets.map((g, gi) => ({
+            storeId: store.id,
+            name: g.name,
+            sortOrder: gi,
+            options: {
+              create: g.options.map((o, oi) => ({
+                storeId: store.id,
+                name: o.name,
+                stock: o.stock,
+                sortOrder: oi,
+              })),
+            },
+          })),
         },
       },
     });

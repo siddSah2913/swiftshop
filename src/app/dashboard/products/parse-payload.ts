@@ -4,13 +4,82 @@
 
 import type { TranslationKey } from "@/lib/i18n";
 import { MAX_PHOTOS_PER_SUBMISSION, validateImageFile } from "@/lib/files";
+import {
+  MAX_OPTION_GROUPS,
+  MAX_OPTIONS_PER_GROUP,
+  MAX_GROUP_NAME_LEN,
+  MAX_OPTION_NAME_LEN,
+  MAX_OPTION_STOCK,
+  type OptionSetInput,
+} from "@/lib/variants/types";
 
 export type ProductInput = {
   name: string;
   caption: string;
   priceNpr: number;
   photoFiles: File[];
+  optionSets: OptionSetInput[];
 };
+
+export type OptionSetParseResult =
+  | { ok: true; optionSets: OptionSetInput[] }
+  | { ok: false; errorKey: TranslationKey };
+
+/**
+ * Parse the admin form's hidden `optionsJson` field into validated option
+ * sets. Empty/absent → []. Caps from @/lib/variants/types. Pure + unit-tested.
+ */
+export function parseOptionSets(raw: string): OptionSetParseResult {
+  if (!raw || raw === "[]") return { ok: true, optionSets: [] };
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return { ok: false, errorKey: "products.optionsInvalid" };
+  }
+  if (!Array.isArray(parsed) || parsed.length > MAX_OPTION_GROUPS) {
+    return { ok: false, errorKey: "products.optionsInvalid" };
+  }
+
+  const optionSets: OptionSetInput[] = [];
+  for (const g of parsed) {
+    if (typeof g !== "object" || g === null) {
+      return { ok: false, errorKey: "products.optionsInvalid" };
+    }
+    const group = g as Record<string, unknown>;
+    const name = typeof group.name === "string" ? group.name.trim() : "";
+    const rawOptions = Array.isArray(group.options) ? group.options : null;
+
+    if (!name || name.length > MAX_GROUP_NAME_LEN) {
+      return { ok: false, errorKey: "products.optionsInvalid" };
+    }
+    if (!rawOptions || rawOptions.length === 0 || rawOptions.length > MAX_OPTIONS_PER_GROUP) {
+      return { ok: false, errorKey: "products.optionsInvalid" };
+    }
+
+    const options: { name: string; stock: number }[] = [];
+    const seen = new Set<string>();
+    for (const o of rawOptions) {
+      if (typeof o !== "object" || o === null) {
+        return { ok: false, errorKey: "products.optionsInvalid" };
+      }
+      const opt = o as Record<string, unknown>;
+      const oname = typeof opt.name === "string" ? opt.name.trim() : "";
+      const stock = Number(opt.stock);
+      if (!oname || oname.length > MAX_OPTION_NAME_LEN || seen.has(oname)) {
+        return { ok: false, errorKey: "products.optionsInvalid" };
+      }
+      if (!Number.isInteger(stock) || stock < 0 || stock > MAX_OPTION_STOCK) {
+        return { ok: false, errorKey: "products.optionsInvalid" };
+      }
+      seen.add(oname);
+      options.push({ name: oname, stock });
+    }
+    optionSets.push({ name, options });
+  }
+  return { ok: true, optionSets };
+}
 
 export type ParseResult =
   | { ok: true; data: ProductInput }
@@ -59,13 +128,22 @@ export function parseSingleForm(
   const bad = priceError(String(formData.get("priceNpr") ?? ""));
   if (bad) return { ok: false, errorKey: bad };
 
+  const optErr = parseOptionSets(String(formData.get("optionsJson") ?? ""));
+  if (!optErr.ok) return { ok: false, errorKey: optErr.errorKey };
+
   if ((opts.requirePhoto ?? true) && photos.length === 0) {
     return { ok: false, errorKey: "products.invalidImage" };
   }
 
   return {
     ok: true,
-    data: { name, caption, priceNpr: Number(formData.get("priceNpr")), photoFiles: photos },
+    data: {
+      name,
+      caption,
+      priceNpr: Number(formData.get("priceNpr")),
+      photoFiles: photos,
+      optionSets: optErr.optionSets,
+    },
   };
 }
 
