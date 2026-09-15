@@ -20,6 +20,7 @@ import {
   PAYMENT_TYPE_I18N_KEY,
   type PaymentType,
 } from "@/lib/payments/types";
+import { subDays, subMonths, subWeeks } from "date-fns";
 import {
   ANALYTICS_GRANULARITIES,
   ANALYTICS_RANGES,
@@ -31,6 +32,7 @@ import {
   type AnalyticsRange,
 } from "@/lib/analytics/types";
 import {
+  BUCKET_CAPS,
   bucketCounts,
   bucketOrders,
   type Bucket,
@@ -101,8 +103,18 @@ export default async function AnalyticsPage({ searchParams }: Props) {
     : "day";
 
   const start = rangeStart(range);
-  const chartStart = start ?? new Date(0); // "all": chart shows most-recent 12 caps
   const end = new Date();
+
+  // For "all", anchor the chart to the most recent N periods (not epoch),
+  // and compute totals from raw query rows (not capped buckets).
+  const cap = BUCKET_CAPS[granularity];
+  const chartStart =
+    start ??
+    (granularity === "day"
+      ? subDays(end, cap - 1)
+      : granularity === "week"
+        ? subWeeks(end, cap - 1)
+        : subMonths(end, cap - 1));
 
   const [orders, statusGroups, paymentGroups, itemRows, customerRows] =
     await Promise.all([
@@ -133,11 +145,13 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
   const revenueBuckets = bucketOrders(orders, chartStart, end, granularity);
   const maxRevenue = Math.max(...revenueBuckets.map((b) => b.value), 1);
-  const totalRevenue = revenueBuckets.reduce((s, b) => s + b.value, 0);
+  // Totals from raw query rows, not capped buckets — "All time" must sum
+  // the full dataset even when the chart only shows the most-recent window.
+  const totalRevenue = orders.reduce((s, o) => s + o.totalNpr, 0);
 
   const customerBuckets = bucketCounts(customerRows, chartStart, end, granularity);
   const maxCustomers = Math.max(...customerBuckets.map((b) => b.value), 1);
-  const totalCustomers = customerBuckets.reduce((s, b) => s + b.value, 0);
+  const totalCustomers = customerRows.length;
 
   const topProducts = aggregateTopProducts(itemRows, 10);
 

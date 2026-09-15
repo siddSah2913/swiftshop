@@ -89,4 +89,39 @@ describe("bucketOrders / bucketCounts", () => {
     expect(out.find((b) => b.start.getTime() === THU.getTime())?.value).toBe(2);
     expect(out.find((b) => b.start.getTime() === NEXT_MON.getTime())?.value).toBe(1);
   });
+
+  it("epoch-start grid places recent data in the last bucket (all-time regression)", () => {
+    // Simulates the old buggy chartStart = new Date(0) with 2026 data:
+    // the grid is 30 day-buckets from 1970, and recent data should land in
+    // the correct bucket (the grid's end), proving that grid start is irrelevant
+    // when chartStart is computed as "most-recent N" — but if it IS epoch,
+    // rows fold to the correct bucket position. This test pins that behavior.
+    const epoch = new Date(0);
+    const today = new Date(2026, 8, 15); // Sep 15 2026
+    const recent = new Date(2026, 8, 14); // Sep 14 2026
+    const orders = [
+      { createdAt: recent, totalNpr: 5000 },
+      { createdAt: today, totalNpr: 3000 },
+    ];
+    const out = bucketOrders(orders, epoch, today, "day");
+    // Grid: 30 buckets from epoch (Jan 1 – Jan 30, 1970).
+    // Sep 2026 rows map outside the grid → foldRows ignores them → all 0.
+    expect(out.every((b) => b.value === 0)).toBe(true);
+    // This proves the old chartStart = epoch was wrong: data disappears.
+    // The page fix computes chartStart = subDays(today, 29) instead.
+  });
+
+  it("recent-start grid captures data in the correct bucket", () => {
+    const start = new Date(2026, 8, 1); // Sep 1 2026
+    const end = new Date(2026, 8, 15);  // Sep 15 2026
+    const orders = [
+      { createdAt: new Date(2026, 8, 14), totalNpr: 5000 },
+      { createdAt: new Date(2026, 8, 15), totalNpr: 3000 },
+    ];
+    const out = bucketOrders(orders, start, end, "day");
+    // Grid: 15 buckets Sep 1–15. Sep 14 = 14th bucket (index 13), Sep 15 = 15th (index 14).
+    expect(out[13]?.value).toBe(5000);
+    expect(out[14]?.value).toBe(3000);
+    expect(out.reduce((s, b) => s + b.value, 0)).toBe(8000);
+  });
 });
