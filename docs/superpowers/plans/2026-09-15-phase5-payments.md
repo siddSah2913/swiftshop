@@ -142,19 +142,21 @@ describe("getPaymentAdapter", () => {
     process.env = origEnv;
   });
 
-  it("returns demo adapter when NODE_ENV is not production and no keys set", () => {
+  it("returns demo adapter when NODE_ENV is not production and no keys set", async () => {
     process.env.NODE_ENV = "test";
     delete process.env.KHALTI_SECRET_KEY;
     delete process.env.ESEWA_MERCHANT_CODE;
     delete process.env.ESEWA_SECRET_KEY;
-    const adapter = getPaymentAdapter("khalti");
+    const adapter = await getPaymentAdapter("khalti");
     expect(adapter).not.toBeNull();
     expect(adapter?.id).toBe("khalti");
   });
 
-  it("returns null for unknown gateway id", () => {
-    // @ts-expect-error — testing runtime guard
-    expect(() => getPaymentAdapter("unknown")).toThrow();
+  it("returns null in production without a configured key", async () => {
+    process.env.NODE_ENV = "production";
+    delete process.env.KHALTI_SECRET_KEY;
+    const adapter = await getPaymentAdapter("khalti");
+    expect(adapter).toBeNull();
   });
 });
 
