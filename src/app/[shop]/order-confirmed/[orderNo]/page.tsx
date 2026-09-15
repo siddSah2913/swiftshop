@@ -19,7 +19,7 @@ type Props = {
 export default async function OrderConfirmedPage({ params }: Props) {
   const { shop, orderNo } = await params;
   const slug = shop.toLowerCase().trim();
-  const locale = getLocale((await cookies()).get("locale")?.value);
+  const locale = getLocale((await cookies()).get("swiftshop_lang")?.value);
   const orderNoNum = parseInt(orderNo, 10);
 
   if (!Number.isInteger(orderNoNum) || orderNoNum < 1) notFound();

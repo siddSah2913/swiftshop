@@ -15,7 +15,7 @@ type Props = {
 export default async function ProductDetailPage({ params }: Props) {
   const { shop, id } = await params;
   const slug = shop.toLowerCase().trim();
-  const locale = getLocale((await cookies()).get("locale")?.value);
+  const locale = getLocale((await cookies()).get("swiftshop_lang")?.value);
 
   const store = await prisma.store.findUnique({
     where: { slug },

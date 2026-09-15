@@ -34,7 +34,7 @@ export async function placeOrder(
   fd: FormData,
   slug: string,
 ): Promise<CheckoutFormState> {
-  const locale = getLocale((await cookies()).get("locale")?.value);
+  const locale = getLocale((await cookies()).get("swiftshop_lang")?.value);
   const trimmedSlug = slug.toLowerCase().trim();
 
   // 1. Resolve store

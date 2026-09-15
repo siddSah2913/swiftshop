@@ -40,7 +40,7 @@ export default async function StorefrontLayout({ params, children }: Props) {
 
   if (!store) notFound();
 
-  const locale = getLocale((await cookies()).get("locale")?.value);
+  const locale = getLocale((await cookies()).get("swiftshop_lang")?.value);
 
   // Read cart cookie for badge count
   const cookieStore = await cookies();
