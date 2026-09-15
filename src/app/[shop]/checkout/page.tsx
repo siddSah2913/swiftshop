@@ -25,6 +25,9 @@ export default async function CheckoutPage({ params }: Props) {
       id: true,
       primaryColor: true,
       qrImageUrl: true,
+      paymentCod: true,
+      paymentEsewa: true,
+      paymentKhalti: true,
     },
   });
 
@@ -83,6 +86,13 @@ export default async function CheckoutPage({ params }: Props) {
     lines.map((l) => ({ priceNpr: l.product.priceNpr, qty: l.qty }))
   );
 
+  // Payment methods offered by this store, in display order. COD is always
+  // available; QR needs an uploaded image; eSewa/Khalti need the flag on.
+  const availableMethods: Array<"cod" | "qr" | "esewa" | "khalti"> = ["cod"];
+  if (store.qrImageUrl) availableMethods.push("qr");
+  if (store.paymentEsewa) availableMethods.push("esewa");
+  if (store.paymentKhalti) availableMethods.push("khalti");
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-zinc-900">
@@ -136,7 +146,7 @@ export default async function CheckoutPage({ params }: Props) {
         <CheckoutForm
           slug={slug}
           primaryColor={store.primaryColor}
-          hasQr={!!store.qrImageUrl}
+          availableMethods={availableMethods}
           labels={{
             name: t(locale, "checkout.name"),
             phone: t(locale, "checkout.phone"),
@@ -147,6 +157,9 @@ export default async function CheckoutPage({ params }: Props) {
             cod: t(locale, "checkout.cod"),
             qr: t(locale, "checkout.qr"),
             qrHint: t(locale, "checkout.qrHint"),
+            payEsewa: t(locale, "checkout.payEsewa"),
+            payKhalti: t(locale, "checkout.payKhalti"),
+            paymentRedirect: t(locale, "checkout.paymentRedirect"),
             placeOrder: t(locale, "checkout.placeOrder"),
           }}
         />

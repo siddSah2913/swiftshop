@@ -6,7 +6,7 @@ import { z } from "zod";
  * stays locale-agnostic. Only Nepali 10-digit mobiles are accepted in v1
  * (`^9[678]\d{8}$`, no +977) — see Phase 2 spec §2/§11.
  */
-const PAYMENT_TYPES = ["cod", "qr"] as const;
+const PAYMENT_TYPES = ["cod", "qr", "esewa", "khalti"] as const;
 export type PaymentType = (typeof PAYMENT_TYPES)[number];
 
 export const checkoutSchema = z

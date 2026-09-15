@@ -3,7 +3,7 @@
 // Checkout form — useActionState with placeOrder bound to slug.
 // See Phase 2 spec §10.
 
-import { useActionState } from "react";
+import { useEffect, useActionState } from "react";
 import {
   placeOrder,
   type CheckoutFormState,
@@ -19,21 +19,52 @@ type Labels = {
   cod: string;
   qr: string;
   qrHint: string;
+  payEsewa: string;
+  payKhalti: string;
+  paymentRedirect: string;
   placeOrder: string;
 };
 
 type Props = {
   slug: string;
   primaryColor: string;
-  hasQr: boolean;
+  availableMethods: Array<"cod" | "qr" | "esewa" | "khalti">;
   labels: Labels;
 };
 
-export function CheckoutForm({ slug, primaryColor, hasQr, labels }: Props) {
+function labelFor(
+  method: "cod" | "qr" | "esewa" | "khalti",
+  labels: Labels,
+): string {
+  switch (method) {
+    case "cod":
+      return labels.cod;
+    case "qr":
+      return labels.qr;
+    case "esewa":
+      return labels.payEsewa;
+    case "khalti":
+      return labels.payKhalti;
+  }
+}
+
+export function CheckoutForm({
+  slug,
+  primaryColor,
+  availableMethods,
+  labels,
+}: Props) {
   const [state, action, pending] = useActionState(
     (prev: CheckoutFormState, fd: FormData) => placeOrder(prev, fd, slug),
     {} as CheckoutFormState,
   );
+
+  const redirecting = !!state.redirectUrl;
+  useEffect(() => {
+    if (state.redirectUrl) {
+      window.location.href = state.redirectUrl;
+    }
+  }, [state.redirectUrl]);
 
   return (
     <form action={action} className="space-y-4">
@@ -85,27 +116,25 @@ export function CheckoutForm({ slug, primaryColor, hasQr, labels }: Props) {
           {labels.payment}
         </legend>
         <div className="mt-2 space-y-2">
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              name="paymentType"
-              value="cod"
-              defaultChecked
-              className="text-teal-600"
-            />
-            <span className="text-sm">{labels.cod}</span>
-          </label>
-          {hasQr ? (
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="paymentType"
-                value="qr"
-                className="text-teal-600"
-              />
-              <span className="text-sm">{labels.qr}</span>
-            </label>
-          ) : null}
+          {availableMethods.map((pt) => (
+            <div key={pt}>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="paymentType"
+                  value={pt}
+                  defaultChecked={pt === "cod"}
+                  className="text-teal-600"
+                />
+                <span className="text-sm">{labelFor(pt, labels)}</span>
+              </label>
+              {pt === "qr" ? (
+                <p className="ml-5 mt-0.5 text-xs text-zinc-400">
+                  {labels.qrHint}
+                </p>
+              ) : null}
+            </div>
+          ))}
         </div>
       </fieldset>
 
@@ -115,13 +144,17 @@ export function CheckoutForm({ slug, primaryColor, hasQr, labels }: Props) {
         </p>
       ) : null}
 
+      {redirecting ? (
+        <p className="text-sm text-zinc-500">{labels.paymentRedirect}</p>
+      ) : null}
+
       <button
         type="submit"
-        disabled={pending}
+        disabled={pending || redirecting}
         className="w-full rounded-md px-4 py-3 text-sm font-medium text-white transition disabled:opacity-70"
         style={{ backgroundColor: primaryColor }}
       >
-        {pending ? "..." : labels.placeOrder}
+        {pending || redirecting ? "..." : labels.placeOrder}
       </button>
     </form>
   );
