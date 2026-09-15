@@ -16,6 +16,12 @@ export default async function EditProductPage({
 
   const product = await prisma.product.findFirst({
     where: { id, storeId: store.id },
+    include: {
+      optionGroups: {
+        orderBy: { sortOrder: "asc" },
+        include: { options: { orderBy: { sortOrder: "asc" } } },
+      },
+    },
   });
   if (!product) notFound();
 
@@ -30,6 +36,10 @@ export default async function EditProductPage({
           caption: product.caption,
           priceNpr: product.priceNpr,
           imageUrls: product.imageUrls,
+          optionSets: product.optionGroups.map((g) => ({
+            name: g.name,
+            options: g.options.map((o) => ({ name: o.name, stock: o.stock })),
+          })),
         }}
         labels={{
           name: t(locale, "products.name"),
@@ -43,6 +53,13 @@ export default async function EditProductPage({
           bulkMode: t(locale, "products.bulkMode"),
           singleMode: t(locale, "products.singleMode"),
           bulkHint: t(locale, "products.bulkHint"),
+          options: t(locale, "products.optionSets"),
+          optionsHint: t(locale, "products.optionsHint"),
+          optionGroupName: t(locale, "products.optionGroupName"),
+          optionName: t(locale, "products.optionName"),
+          optionStock: t(locale, "products.optionStock"),
+          addOptionGroup: t(locale, "products.addOptionGroup"),
+          addOption: t(locale, "products.addOption"),
         }}
       />
     </div>

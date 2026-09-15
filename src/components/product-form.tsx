@@ -7,6 +7,8 @@ import {
   updateProduct,
   type ProductsFormState,
 } from "@/app/dashboard/products/actions";
+import { VariantEditor, type EditorLabels } from "@/components/variant-editor";
+import type { OptionSetInput } from "@/lib/variants/types";
 import { MAX_PHOTOS_PER_SUBMISSION } from "@/lib/upload-limits";
 
 type Labels = {
@@ -21,6 +23,13 @@ type Labels = {
   bulkMode: string;
   singleMode: string;
   bulkHint: string;
+  options: string;
+  optionsHint: string;
+  optionGroupName: string;
+  optionName: string;
+  optionStock: string;
+  addOptionGroup: string;
+  addOption: string;
 };
 
 type ProductFormAction = (
@@ -36,7 +45,13 @@ export function ProductForm({
 }: {
   labels: Labels;
   mode: "single" | "bulk";
-  product?: { name: string; caption: string; priceNpr: number; imageUrls: string[] };
+  product?: {
+    name: string;
+    caption: string;
+    priceNpr: number;
+    imageUrls: string[];
+    optionSets: OptionSetInput[];
+  };
   productId?: string;
 }) {
   const [mode, setMode] = useState<"single" | "bulk">(initialMode);
@@ -147,7 +162,13 @@ function SingleFields({
   product,
 }: {
   labels: Labels;
-  product?: { name: string; caption: string; priceNpr: number; imageUrls: string[] };
+  product?: {
+    name: string;
+    caption: string;
+    priceNpr: number;
+    imageUrls: string[];
+    optionSets: OptionSetInput[];
+  };
 }) {
   return (
     <>
@@ -181,6 +202,21 @@ function SingleFields({
           className="mt-1 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-900 focus:border-teal-600 focus:outline-none"
         />
       </label>
+      <VariantEditor
+        initial={product?.optionSets ?? []}
+        labels={
+          {
+            options: labels.options,
+            optionsHint: labels.optionsHint,
+            optionGroupName: labels.optionGroupName,
+            optionName: labels.optionName,
+            optionStock: labels.optionStock,
+            addOptionGroup: labels.addOptionGroup,
+            addOption: labels.addOption,
+            remove: labels.remove,
+          } satisfies EditorLabels
+        }
+      />
     </>
   );
 }

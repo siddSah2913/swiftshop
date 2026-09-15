@@ -16,6 +16,13 @@ export default async function NewProductPage() {
     bulkMode: t(locale, "products.bulkMode"),
     singleMode: t(locale, "products.singleMode"),
     bulkHint: t(locale, "products.bulkHint"),
+    options: t(locale, "products.optionSets"),
+    optionsHint: t(locale, "products.optionsHint"),
+    optionGroupName: t(locale, "products.optionGroupName"),
+    optionName: t(locale, "products.optionName"),
+    optionStock: t(locale, "products.optionStock"),
+    addOptionGroup: t(locale, "products.addOptionGroup"),
+    addOption: t(locale, "products.addOption"),
   };
 
   return (
