@@ -42,3 +42,6 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+
+# runtime owner-uploaded photos (dev data — like the DB, never committed)
+/public/uploads-original/
