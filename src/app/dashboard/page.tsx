@@ -57,6 +57,16 @@ export default async function DashboardPage() {
             {t(locale, "product.priceNpr")} {amountNpr.toLocaleString("en-IN")}
           </p>
         </Link>
+
+        <Link
+          href="/dashboard/analytics"
+          className="col-span-full rounded-lg border border-zinc-200 bg-white p-5 transition hover:border-teal-300 hover:shadow-sm"
+        >
+          <p className="text-sm text-zinc-500">{t(locale, "dashboard.analytics")}</p>
+          <p className="mt-1 text-sm text-zinc-400">
+            {t(locale, "dashboard.analyticsHint")}
+          </p>
+        </Link>
       </div>
     </div>
   );

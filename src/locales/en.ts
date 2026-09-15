@@ -253,6 +253,42 @@ export const en = {
   "payment.failed": "Payment verification failed.",
   "payment.amountMismatch": "Payment amount does not match order total.",
   "payment.unknownGateway": "Unknown payment gateway.",
+
+  // --- Phase 6: Analytics + Export + Share ---
+  "analytics.title": "Analytics",
+  "analytics.range7d": "Last 7 days",
+  "analytics.range30d": "Last 30 days",
+  "analytics.rangeAll": "All time",
+  "analytics.granularityDay": "Day",
+  "analytics.granularityWeek": "Week",
+  "analytics.granularityMonth": "Month",
+  "analytics.revenue": "Revenue",
+  "analytics.ordersByStatus": "Orders by status",
+  "analytics.topProducts": "Top products",
+  "analytics.paymentSplit": "Payment methods",
+  "analytics.customerGrowth": "New customers",
+  "analytics.product": "Product",
+  "analytics.qtySold": "Qty sold",
+  "analytics.revenueNpr": "Revenue (NPR)",
+  "analytics.export": "Export CSV",
+  "analytics.empty": "No data in this period.",
+
+  "share.button": "Share",
+  "share.title": "Share this product",
+  "share.copyLink": "Copy link",
+  "share.copied": "Copied ✓",
+  "share.pasteIn": "Link copied — paste it in {platform}",
+  "share.whatsapp": "WhatsApp",
+  "share.facebook": "Facebook",
+  "share.messenger": "Messenger",
+  "share.viber": "Viber",
+  "share.instagram": "Instagram",
+  "share.tiktok": "TikTok",
+
+  // Navigation additions for Analytics
+  "dashboard.analytics": "Analytics",
+  "dashboard.analyticsHint": "Revenue, top products, and more",
+  "more.analytics": "Analytics",
 } as const;
 
 /** Type of a dictionary: one string value for every key. */
