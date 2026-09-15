@@ -125,6 +125,9 @@ export const en = {
   "product.outOfStock": "Out of stock",
   "product.priceNpr": "NPR",
   "product.backToShop": "← Back to shop",
+  "product.chooseOptions": "Choose options",
+  "product.selectOptions": "Select options",
+  "product.optionSoldOut": "Sold out",
 
   // Cart
   "cart.nav": "Cart",
@@ -289,6 +292,16 @@ export const en = {
   "dashboard.analytics": "Analytics",
   "dashboard.analyticsHint": "Revenue, top products, and more",
   "more.analytics": "Analytics",
+
+  // --- Phase 6 slice 2: product variants ---
+  "products.optionSets": "Options",
+  "products.optionsHint": "Customers pick one option from each group (e.g. Size and Color). Each option has its own stock.",
+  "products.optionGroupName": "Group name (e.g. Size)",
+  "products.optionName": "Option name (e.g. M)",
+  "products.optionStock": "Stock",
+  "products.addOptionGroup": "Add group",
+  "products.addOption": "Add option",
+  "products.optionsInvalid": "Options are invalid.",
 } as const;
 
 /** Type of a dictionary: one string value for every key. */

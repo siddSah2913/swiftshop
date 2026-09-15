@@ -120,6 +120,9 @@ export const ne: Dict = {
   "product.outOfStock": "सकिएको छ",
   "product.priceNpr": "रु.",
   "product.backToShop": "← पसलमा फर्कनुहोस्",
+  "product.chooseOptions": "विकल्प रोज्नुहोस्",
+  "product.selectOptions": "विकल्प चयन गर्नुहोस्",
+  "product.optionSoldOut": "सकियो",
 
   // Cart
   "cart.nav": "कार्ट",
@@ -284,4 +287,14 @@ export const ne: Dict = {
   "dashboard.analytics": "एनालिटिक्स",
   "dashboard.analyticsHint": "बिक्री, लोकप्रिय उत्पादन र थप",
   "more.analytics": "एनालिटिक्स",
+
+  // --- Phase 6 slice 2: product variants ---
+  "products.optionSets": "विकल्पहरू",
+  "products.optionsHint": "ग्राहकहरूले प्रत्येक समूहबाट एउटा विकल्प रोज्छन् (जस्तै आकार र रङ)। प्रत्येक विकल्पको आफ्नै स्टक हुन्छ।",
+  "products.optionGroupName": "समूहको नाम (जस्तै आकार)",
+  "products.optionName": "विकल्पको नाम (जस्तै M)",
+  "products.optionStock": "स्टक",
+  "products.addOptionGroup": "समूह थप्नुहोस्",
+  "products.addOption": "विकल्प थप्नुहोस्",
+  "products.optionsInvalid": "विकल्पहरू मान्य छैनन्।",
 };
