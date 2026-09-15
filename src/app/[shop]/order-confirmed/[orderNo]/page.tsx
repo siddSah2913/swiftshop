@@ -7,6 +7,10 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getLocale, t } from "@/lib/i18n";
+import {
+  PAYMENT_TYPE_I18N_KEY,
+  type PaymentType,
+} from "@/lib/payments/types";
 
 type Props = {
   params: Promise<{ shop: string; orderNo: string }>;
@@ -61,7 +65,7 @@ export default async function OrderConfirmedPage({ params }: Props) {
 
       <p className="mt-2 text-sm text-zinc-500">
         {t(locale, "cart.total")}: NPR {order.totalNpr.toLocaleString("en-IN")} ·{" "}
-        {order.paymentType === "cod" ? t(locale, "checkout.cod") : t(locale, "checkout.qr")}
+        {t(locale, PAYMENT_TYPE_I18N_KEY[order.paymentType as PaymentType] ?? "checkout.qr")}
       </p>
 
       {whatsappUrl ? (

@@ -16,6 +16,10 @@ import {
   type PaymentStatus,
 } from "@/lib/order-status";
 import {
+  PAYMENT_TYPE_I18N_KEY,
+  type PaymentType,
+} from "@/lib/payments/types";
+import {
   DELIVERY_PARTNER_IDS,
   PARTNER_LABEL_KEYS,
   isDeliveryPartnerId,
@@ -140,9 +144,7 @@ export default async function OrderDetailPage({
           {t(locale, "orders.payment")}
         </h2>
         <p className="mt-2 text-sm font-medium text-zinc-900">
-          {order.paymentType === "cod"
-            ? t(locale, "checkout.cod")
-            : t(locale, "checkout.qr")}
+          {t(locale, PAYMENT_TYPE_I18N_KEY[order.paymentType as PaymentType] ?? "checkout.qr")}
         </p>
         <span className="mt-2 inline-block rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-700">
           {t(locale, PAYMENT_LABEL_KEYS[paymentStatus])}
