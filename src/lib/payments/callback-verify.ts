@@ -73,6 +73,17 @@ export async function verifyAndMarkPaid(params: {
     return null;
   }
 
+  // Structural check (mirrors `isUniqueViolation` in checkout/actions.ts) so it
+  // survives adapter-wrapped errors where `instanceof` across copies can fail.
+  function casNoMatch(e: unknown): boolean {
+    return (
+      typeof e === "object" &&
+      e !== null &&
+      "code" in e &&
+      (e as { code?: unknown }).code === "P2025"
+    );
+  }
+
   // CAS: only update when currently unpaid
   try {
     await prisma.order.update({
@@ -83,8 +94,8 @@ export async function verifyAndMarkPaid(params: {
         paidAt: new Date(),
       },
     });
-  } catch (e: any) {
-    if (e?.code === "P2025") {
+  } catch (e: unknown) {
+    if (casNoMatch(e)) {
       // Already paid between our read and this write — safe (the pidx write was a
       // no-op re-write of the value T6 pre-saved; only the status/paidAt mattered)
       log("payments:callback:cas-race", { orderId: order.id });

@@ -86,9 +86,11 @@ export default async function CheckoutPage({ params }: Props) {
     lines.map((l) => ({ priceNpr: l.product.priceNpr, qty: l.qty }))
   );
 
-  // Payment methods offered by this store, in display order. COD is always
-  // available; QR needs an uploaded image; eSewa/Khalti need the flag on.
-  const availableMethods: Array<"cod" | "qr" | "esewa" | "khalti"> = ["cod"];
+  // Payment methods offered by this store, in display order. Each method is
+  // shown only when the store has it enabled — including COD (toggleable in
+  // the new settings page).
+  const availableMethods: Array<"cod" | "qr" | "esewa" | "khalti"> = [];
+  if (store.paymentCod) availableMethods.push("cod");
   if (store.qrImageUrl) availableMethods.push("qr");
   if (store.paymentEsewa) availableMethods.push("esewa");
   if (store.paymentKhalti) availableMethods.push("khalti");

@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isPaymentGatewayId } from "@/lib/payments/types";
+import {
+  isPaymentGatewayId,
+  type PaymentGatewayId,
+} from "@/lib/payments/types";
 import { verifyAndMarkPaid } from "@/lib/payments/callback-verify";
 import { log } from "@/lib/log";
 
@@ -29,10 +32,15 @@ export async function GET(
     return NextResponse.redirect(new URL("/?error=unknown-gateway", request.url));
   }
 
+  // The isPaymentGatewayId guard above narrowed gateway to the two real ids.
+  // Bind it explicitly so the if/else-if below is provably exhaustive and the
+  // compiler can see lookupBy/pidx are always assigned (no dead else needed).
+  const gatewayId: PaymentGatewayId = gateway;
+
   let lookupBy: { orderId: string } | { pidx: string };
   let pidx: string;
 
-  if (gateway === "khalti") {
+  if (gatewayId === "khalti") {
     const khaltiPidx = searchParams.get("pidx");
     if (!khaltiPidx) {
       log("payments:callback:khalti-missing-pidx", Object.fromEntries(searchParams));
@@ -45,7 +53,7 @@ export async function GET(
     } else {
       lookupBy = { pidx: khaltiPidx };
     }
-  } else if (gateway === "esewa") {
+  } else if (gatewayId === "esewa") {
     const oid = searchParams.get("oid");
     const refId = searchParams.get("refId");
     if (!oid || !refId) {
@@ -55,10 +63,13 @@ export async function GET(
     pidx = `oid:${oid}:refId:${refId}`;
     lookupBy = { orderId: oid };
   } else {
-    return NextResponse.redirect(new URL("/?error=unsupported-gateway", request.url));
+    // Exhaustive: the isPaymentGatewayId guard above means only eSewa/Khalti
+    // reach here. The compiler still requires an else for definite assignment
+    // of lookupBy/pidx, so throw rather than return (no dead redirect).
+    throw new Error(`unreachable gateway: ${gatewayId}`);
   }
 
-  const result = await verifyAndMarkPaid({ lookupBy, pidx, gatewayId: gateway });
+  const result = await verifyAndMarkPaid({ lookupBy, pidx, gatewayId });
 
   if (!result) {
     return NextResponse.redirect(new URL("/?error=payment-failed", request.url));

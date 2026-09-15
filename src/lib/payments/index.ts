@@ -3,7 +3,7 @@ import { createDemoAdapter } from "./demo";
 
 const ENV_KEY_MAP: Record<PaymentGatewayId, string> = {
   khalti: "KHALTI_SECRET_KEY",
-  esewa: "ESEWA_MERCHANT_CODE",
+  esewa: "ESEWA_SECRET_KEY",
 };
 
 /**
