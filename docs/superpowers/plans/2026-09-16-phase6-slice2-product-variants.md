@@ -462,6 +462,13 @@ model ProductOption {
 }
 ```
 
+> **Schema correction (Ruling A, 2026-09-16):** Prisma 7.10 enforces two-sided
+> relations — the two new `store` back-refs require opposite fields on `Store`
+> or `prisma migrate dev` fails P1012. Add to `model Store` (beside its existing
+> `products`/`orders`/`customers` list fields):
+> `optionGroups ProductOptionGroup[]` and `productOptions ProductOption[]`.
+> Pure relation fields — no column or table change.
+
 - [ ] **Step 2: Run the migration**
 
 Run: `npx prisma migrate dev --name add_product_variants`
@@ -745,12 +752,14 @@ Expected: PASS — 190 + new tests.
 - [ ] **Step 9: Commit**
 
 ```bash
-git add prisma/schema.prisma src/app/dashboard/products/parse-payload.ts src/app/dashboard/products/payload.test.ts src/app/dashboard/products/actions.ts
+git add prisma/schema.prisma prisma/migrations src/app/dashboard/products/parse-payload.ts src/app/dashboard/products/payload.test.ts src/app/dashboard/products/actions.ts
 git commit -m "feat(variants): option-set tables + parse + create/update write options"
 ```
 
 > The migration's generated client (prisma-generated files) is git-ignored —
-> no need to stage it.
+> no need to stage it. **Stage `prisma/migrations`** (Ruling C): prior
+> migrations are tracked, so the new migration SQL must be committed or
+> `migrate deploy` breaks.
 
 ---
 
