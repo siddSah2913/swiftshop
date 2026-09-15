@@ -63,7 +63,9 @@ describe("getPaymentAdapter", () => {
   });
 
   it("returns demo adapter when NODE_ENV is not production and no keys set", async () => {
-    process.env.NODE_ENV = "test";
+    // Cast: @types/node marks process.env.NODE_ENV readonly, so a direct
+    // assignment fails tsc. NODE_ENV is "test" under vitest anyway.
+    (process.env as { NODE_ENV?: string }).NODE_ENV = "test";
     delete process.env.KHALTI_SECRET_KEY;
     delete process.env.ESEWA_MERCHANT_CODE;
     delete process.env.ESEWA_SECRET_KEY;
@@ -73,7 +75,7 @@ describe("getPaymentAdapter", () => {
   });
 
   it("returns null in production without a configured key", async () => {
-    process.env.NODE_ENV = "production";
+    (process.env as { NODE_ENV?: string }).NODE_ENV = "production";
     delete process.env.KHALTI_SECRET_KEY;
     const adapter = await getPaymentAdapter("khalti");
     expect(adapter).toBeNull();
@@ -92,14 +94,18 @@ describe("isGatewayConfigured", () => {
   });
 
   it("returns false when env keys are missing in non-production", () => {
-    process.env.NODE_ENV = "test";
+    // Cast: @types/node marks process.env.NODE_ENV readonly, so a direct
+    // assignment fails tsc. NODE_ENV is "test" under vitest anyway.
+    (process.env as { NODE_ENV?: string }).NODE_ENV = "test";
     delete process.env.KHALTI_SECRET_KEY;
     delete process.env.ESEWA_MERCHANT_CODE;
     expect(isGatewayConfigured("khalti")).toBe(false);
   });
 
   it("returns true when env key is present", () => {
-    process.env.NODE_ENV = "test";
+    // Cast: @types/node marks process.env.NODE_ENV readonly, so a direct
+    // assignment fails tsc. NODE_ENV is "test" under vitest anyway.
+    (process.env as { NODE_ENV?: string }).NODE_ENV = "test";
     process.env.KHALTI_SECRET_KEY = "test-key";
     expect(isGatewayConfigured("khalti")).toBe(true);
   });
