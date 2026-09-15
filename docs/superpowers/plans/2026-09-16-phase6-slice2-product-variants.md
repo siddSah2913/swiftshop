@@ -1402,6 +1402,7 @@ git commit -m "feat(variants): storefront picker + variant-aware cards + composi
 **Files:**
 - Modify: `src/lib/cart.ts`
 - Modify: `src/lib/cart.test.ts`
+- Modify: `src/app/[shop]/cart/actions.ts` (Step 5 — `setCartQty` accepts composite keys)
 - Modify: `src/app/[shop]/cart/page.tsx`
 - Modify: `src/components/cart-lines.tsx`
 - Modify: `src/app/[shop]/checkout/actions.ts`
@@ -1409,6 +1410,10 @@ git commit -m "feat(variants): storefront picker + variant-aware cards + composi
 **Interfaces:**
 - Consumes: Task 1 `LINE_KEY_RE`, `parseLineKey`, `formatVariantName`, `validateSelection`; Task 2 groups read shape
 - Produces: composite-key-aware cart resolving, display, and checkout snapshot
+<!-- Ruling F (2026-09-16): this task's Files list and Step-10 git-add line originally
+omitted src/app/[shop]/cart/actions.ts even though Step 5 explicitly edits setCartQty
+there. Implementer correctly staged it as a 6th file; amended here so the commit
+contract matches Step 5. Same class as Ruling C (Task 2 git-add omission). -->
 
 - [ ] **Step 1: Accept composite keys in the cookie parser — `cart.ts`**
 
@@ -1704,7 +1709,7 @@ Run: `npm run build` → PASS.
 - [ ] **Step 10: Commit**
 
 ```bash
-git add src/lib/cart.ts src/lib/cart.test.ts "src/app/[shop]/cart/page.tsx" src/components/cart-lines.tsx "src/app/[shop]/checkout/actions.ts"
+git add src/lib/cart.ts src/lib/cart.test.ts "src/app/[shop]/cart/actions.ts" "src/app/[shop]/cart/page.tsx" src/components/cart-lines.tsx "src/app/[shop]/checkout/actions.ts"
 git commit -m "feat(variants): composite cart keys through cart + checkout snapshot"
 ```
 
