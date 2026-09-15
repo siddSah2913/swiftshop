@@ -229,6 +229,30 @@ export const en = {
   "delivery.sendWhatsApp": "Send on WhatsApp",
   "delivery.customerHandedMsg": "Hi {customer}! Your order #{orderNo} from {store} has been handed to {partner}.",
   "delivery.customerTrackingMsg": " Tracking: {ref}",
+
+  // --- Phase 5: Payments ---
+  "checkout.payWith": "Pay with",
+  "checkout.payEsewa": "eSewa",
+  "checkout.payKhalti": "Khalti",
+  "checkout.paymentRedirect": "Redirecting to payment gateway…",
+  "checkout.paymentFailed": "Payment initiation failed. Please try again.",
+  "checkout.storeUnavailable": "This payment method is not available for this store.",
+  "settings.title": "Settings",
+  "settings.paymentMethods": "Payment Methods",
+  "settings.enableCod": "Cash on Delivery",
+  "settings.enableQr": "QR Payment",
+  "settings.enableEsewa": "eSewa",
+  "settings.enableKhalti": "Khalti",
+  "settings.save": "Save",
+  "settings.requirePayToDeliver": "Require payment before delivery",
+  "settings.requirePayToDeliverHint": "Non-COD orders must be paid before marking delivered",
+  "settings.qrHint": "Upload a QR image so customers can scan to pay.",
+  "settings.saved": "Settings saved.",
+  "orders.paymentRequired": "This order must be paid before delivery.",
+  "payment.verified": "Payment verified.",
+  "payment.failed": "Payment verification failed.",
+  "payment.amountMismatch": "Payment amount does not match order total.",
+  "payment.unknownGateway": "Unknown payment gateway.",
 } as const;
 
 /** Type of a dictionary: one string value for every key. */
