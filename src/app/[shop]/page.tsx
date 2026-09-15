@@ -30,6 +30,7 @@ export default async function StorePage({ params }: Props) {
   const products = await prisma.product.findMany({
     where: { storeId: store.id, available: true },
     orderBy: { createdAt: "desc" },
+    include: { _count: { select: { optionGroups: true } } },
   });
 
   return (
@@ -49,6 +50,8 @@ export default async function StorePage({ params }: Props) {
               priceLabel={t(locale, "product.priceNpr")}
               addToCartLabel={t(locale, "product.addToCart")}
               addedLabel={t(locale, "product.added")}
+              hasOptions={p._count.optionGroups > 0}
+              chooseOptionsLabel={t(locale, "product.chooseOptions")}
             />
           ))}
         </div>

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getLocale, t } from "@/lib/i18n";
 import { AddToCartButton } from "@/components/add-to-cart";
+import { VariantPicker, type PickerLabels } from "@/components/variant-picker";
 import { ProductShare, type ShareLabels } from "@/components/product-share";
 
 type Props = {
@@ -27,6 +28,12 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const product = await prisma.product.findFirst({
     where: { id, storeId: store.id },
+    include: {
+      optionGroups: {
+        orderBy: { sortOrder: "asc" },
+        include: { options: { orderBy: { sortOrder: "asc" } } },
+      },
+    },
   });
 
   if (!product) notFound();
@@ -109,12 +116,36 @@ export default async function ProductDetailPage({ params }: Props) {
           />
 
           {product.available ? (
-            <AddToCartButton
-              productId={product.id}
-              label={t(locale, "product.addToCart")}
-              addedLabel={t(locale, "product.added")}
-              primaryColor={store.primaryColor}
-            />
+            product.optionGroups.length > 0 ? (
+              <VariantPicker
+                productId={product.id}
+                groups={product.optionGroups.map((g) => ({
+                  id: g.id,
+                  name: g.name,
+                  options: g.options.map((o) => ({
+                    id: o.id,
+                    name: o.name,
+                    stock: o.stock,
+                  })),
+                }))}
+                primaryColor={store.primaryColor}
+                labels={
+                  {
+                    add: t(locale, "product.addToCart"),
+                    added: t(locale, "product.added"),
+                    choose: t(locale, "product.selectOptions"),
+                    soldOut: t(locale, "product.optionSoldOut"),
+                  } satisfies PickerLabels
+                }
+              />
+            ) : (
+              <AddToCartButton
+                productId={product.id}
+                label={t(locale, "product.addToCart")}
+                addedLabel={t(locale, "product.added")}
+                primaryColor={store.primaryColor}
+              />
+            )
           ) : (
             <p className="mt-4 text-sm font-medium text-red-600">
               {t(locale, "product.outOfStock")}

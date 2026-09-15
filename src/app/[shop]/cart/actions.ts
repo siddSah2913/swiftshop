@@ -12,6 +12,7 @@ import {
   ID_RE,
   type CartMap,
 } from "@/lib/cart";
+import { SEGMENT_RE, buildLineKey } from "@/lib/variants/line-key";
 
 export type CartActionState = { ok?: boolean; error?: string };
 
@@ -47,9 +48,18 @@ export async function addToCartItem(
     return { error: "Invalid product." };
   }
 
+  const optionIds = fd
+    .getAll("option")
+    .map((v) => String(v))
+    .filter((v) => SEGMENT_RE.test(v));
+  if (optionIds.length > 2) {
+    return { error: "Invalid product." };
+  }
+
+  const key = buildLineKey(productId, optionIds);
   const cart = await readCart();
-  const current = cart[productId] ?? 0;
-  cart[productId] = Math.min(current + 1, 9);
+  const current = cart[key] ?? 0;
+  cart[key] = Math.min(current + 1, 9);
 
   await writeCart(cart);
   return { ok: true };
