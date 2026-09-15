@@ -7,6 +7,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getLocale, t } from "@/lib/i18n";
 import { AddToCartButton } from "@/components/add-to-cart";
+import { ProductShare, type ShareLabels } from "@/components/product-share";
 
 type Props = {
   params: Promise<{ shop: string; id: string }>;
@@ -85,6 +86,27 @@ export default async function ProductDetailPage({ params }: Props) {
             {t(locale, "product.priceNpr")}{" "}
             {product.priceNpr.toLocaleString("en-IN")}
           </p>
+
+          <ProductShare
+            slug={slug}
+            productId={product.id}
+            productName={product.name}
+            labels={
+              {
+                button: t(locale, "share.button"),
+                title: t(locale, "share.title"),
+                copyLink: t(locale, "share.copyLink"),
+                copied: t(locale, "share.copied"),
+                pasteIn: t(locale, "share.pasteIn"),
+                whatsapp: t(locale, "share.whatsapp"),
+                facebook: t(locale, "share.facebook"),
+                messenger: t(locale, "share.messenger"),
+                viber: t(locale, "share.viber"),
+                instagram: t(locale, "share.instagram"),
+                tiktok: t(locale, "share.tiktok"),
+              } satisfies ShareLabels
+            }
+          />
 
           {product.available ? (
             <AddToCartButton
