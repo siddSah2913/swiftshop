@@ -24,6 +24,12 @@ export default async function MorePage() {
 
       <div className="mt-6 overflow-hidden rounded-lg border border-zinc-200 bg-white">
         <Link
+          href="/dashboard/settings"
+          className="block border-b border-zinc-100 px-4 py-3 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+        >
+          {t(locale, "settings.title")}
+        </Link>
+        <Link
           href={`/${store.slug}`}
           className="block border-b border-zinc-100 px-4 py-3 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
         >
