@@ -629,9 +629,8 @@ describe("esewaAdapter", () => {
     }
   });
 
-  it("createPayment uses correct amount breakdown", async () => {
+  it("createPayment embeds the correct amount breakdown + merchant code + signature", async () => {
     const adapter = await loadAdapter();
-    // Capture the form fields by examining the redirectUrl encoding
     const result = await adapter.createPayment({
       orderId: "ord_1",
       orderNo: 5,
@@ -640,10 +639,15 @@ describe("esewaAdapter", () => {
     });
 
     expect(result.ok).toBe(true);
-    // The payload should be a valid base64 string
     if (result.ok) {
-      const dataUrl = result.redirectUrl;
-      expect(dataUrl).toContain("epay.sandbox.nic.np");
+      // redirectUrl is a base64 data-URI whose HTML auto-submits the eSewa
+      // form POST. Decode and assert the signing-relevant hidden fields.
+      const html = Buffer.from(result.redirectUrl.split(",")[1], "base64").toString();
+      expect(html).toContain('action="https://epay.sandbox.nic.np/pay/process"');
+      expect(html).toContain('name="tAmt" value="200"');
+      expect(html).toContain('name="amt" value="200"');
+      expect(html).toContain('name="productCode" value="EPAYTEST"');
+      expect(html).toContain('name="signature"');
     }
   });
 
@@ -658,7 +662,7 @@ describe("esewaAdapter", () => {
 
     const adapter = await loadAdapter();
     const result = await adapter.verifyPayment({
-      pidx: "oid_123:ref_456",
+      pidx: "oid:oid_123:refId:ref_456",
       amountNpr: 200,
     });
 
@@ -684,7 +688,7 @@ describe("esewaAdapter", () => {
 
     const adapter = await loadAdapter();
     const result = await adapter.verifyPayment({
-      pidx: "oid_123:ref_456",
+      pidx: "oid:oid_123:refId:ref_456",
       amountNpr: 200,
     });
 
@@ -705,7 +709,7 @@ describe("esewaAdapter", () => {
 
     const adapter = await loadAdapter();
     const result = await adapter.verifyPayment({
-      pidx: "oid_123:ref_456",
+      pidx: "oid:oid_123:refId:ref_456",
       amountNpr: 200,
     });
 
