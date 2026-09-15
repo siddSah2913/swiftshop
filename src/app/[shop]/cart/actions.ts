@@ -12,7 +12,7 @@ import {
   ID_RE,
   type CartMap,
 } from "@/lib/cart";
-import { SEGMENT_RE, buildLineKey } from "@/lib/variants/line-key";
+import { SEGMENT_RE, LINE_KEY_RE, buildLineKey } from "@/lib/variants/line-key";
 
 export type CartActionState = { ok?: boolean; error?: string };
 
@@ -72,7 +72,7 @@ export async function setCartQty(
   const productId = String(fd.get("productId") ?? "");
   const qty = Number(fd.get("qty"));
 
-  if (!ID_RE.test(productId)) {
+  if (!LINE_KEY_RE.test(productId)) {
     return { error: "Invalid product." };
   }
 

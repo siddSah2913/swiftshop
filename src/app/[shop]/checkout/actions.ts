@@ -9,6 +9,9 @@ import { cookies } from "next/headers";
 import { prisma } from "@/lib/db";
 import { parseCartCookie, CART_COOKIE } from "@/lib/cart";
 import { computeTotal } from "@/lib/order";
+import { parseLineKey } from "@/lib/variants/line-key";
+import { formatVariantName } from "@/lib/variants/label";
+import { validateSelection } from "@/lib/variants/validate";
 import { checkoutSchema } from "./schema";
 import { getLocale, t, type TranslationKey } from "@/lib/i18n";
 import { log } from "@/lib/log";
@@ -82,36 +85,56 @@ export async function placeOrder(
   // 3. Read cart from cookie, then re-read every product from DB
   const cookieStore = await cookies();
   const cart = parseCartCookie(cookieStore.get(CART_COOKIE)?.value ?? null);
-  const productIds = Object.keys(cart);
+  const parsedKeys = Object.keys(cart)
+    .map((key) => ({ key, ...parseLineKey(key) }))
+    .filter((k) => k.productId);
 
-  if (productIds.length === 0) {
+  if (parsedKeys.length === 0) {
     return { error: t(locale, "checkout.cartEmpty") };
   }
 
+  const uniqueProductIds = [...new Set(parsedKeys.map((k) => k.productId))];
   const dbProducts = await prisma.product.findMany({
-    where: {
-      id: { in: productIds },
-      storeId: store.id,
-      available: true,
+    where: { id: { in: uniqueProductIds }, storeId: store.id, available: true },
+    include: {
+      optionGroups: {
+        orderBy: { sortOrder: "asc" },
+        include: { options: { orderBy: { sortOrder: "asc" } } },
+      },
     },
   });
+  const byId = new Map(dbProducts.map((p) => [p.id, p]));
 
-  // Build validated lines (drop foreign/disabled products silently)
-  const lines = dbProducts
-    .map((p) => ({
-      productId: p.id,
-      name: p.name,
-      priceNpr: p.priceNpr,
-      qty: cart[p.id] ?? 1,
-    }))
-    .filter((l) => l.qty >= 1 && l.qty <= 9);
+  // Build validated lines: drop foreign/disabled products AND lines whose
+  // option selection is malformed/missing/sold-out. Snapshot name = base name
+  // + chosen option labels ("Tee — Size M, Red").
+  const lines: {
+    productId: string;
+    name: string;
+    priceNpr: number;
+    qty: number;
+  }[] = [];
+  for (const { key, productId, optionIds } of parsedKeys) {
+    const product = byId.get(productId);
+    if (!product) continue;
+    const qty = cart[key] ?? 1;
+    if (qty < 1 || qty > 9) continue;
+    const sel = validateSelection(product.optionGroups, optionIds);
+    if (!sel.ok) continue;
+    lines.push({
+      productId: product.id,
+      name: formatVariantName(product.name, sel.optionNames),
+      priceNpr: product.priceNpr,
+      qty,
+    });
+  }
 
   if (lines.length === 0) {
     return { error: t(locale, "checkout.cartEmpty") };
   }
 
   const totalNpr = computeTotal(
-    lines.map((l) => ({ priceNpr: l.priceNpr, qty: l.qty }))
+    lines.map((l) => ({ priceNpr: l.priceNpr, qty: l.qty })),
   );
 
   // 4. DB write in ONE transaction — the callback returns the new order

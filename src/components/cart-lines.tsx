@@ -9,9 +9,14 @@ import {
   setCartQty,
   type CartActionState,
 } from "@/app/[shop]/cart/actions";
-import type { ProductModel } from "@/generated/prisma/models";
 
-type Line = { product: ProductModel; qty: number };
+type Line = {
+  lineKey: string;
+  lineName: string;
+  priceNpr: number;
+  imageUrl?: string;
+  qty: number;
+};
 
 type Props = {
   lines: Line[];
@@ -39,12 +44,12 @@ export function CartLines({
   return (
     <div className="mt-6">
       <ul className="divide-y divide-zinc-200">
-        {lines.map(({ product, qty }) => (
-          <li key={product.id} className="flex items-center gap-4 py-4">
-            {product.imageUrls[0] ? (
+        {lines.map((line) => (
+          <li key={line.lineKey} className="flex items-center gap-4 py-4">
+            {line.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={product.imageUrls[0]}
+                src={line.imageUrl}
                 alt=""
                 className="h-16 w-16 rounded-md object-cover"
               />
@@ -53,18 +58,18 @@ export function CartLines({
             )}
             <div className="min-w-0 flex-1">
               <p className="truncate font-medium text-zinc-900">
-                {product.name}
+                {line.lineName}
               </p>
               <p className="text-sm text-zinc-500">
-                NPR {product.priceNpr.toLocaleString("en-IN")}
+                NPR {line.priceNpr.toLocaleString("en-IN")}
               </p>
             </div>
 
             <div className="flex items-center gap-2">
               <span className="text-xs text-zinc-500">{qtyLabel}</span>
               <QtyStepper
-                productId={product.id}
-                qty={qty}
+                productId={line.lineKey}
+                qty={line.qty}
                 removeLabel={removeLabel}
                 primaryColor={primaryColor}
               />

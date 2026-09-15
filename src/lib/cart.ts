@@ -3,6 +3,8 @@
 // every line from the DB scoped to the current store at read time and at order
 // time, dropping foreign/disabled products. See Phase 2 spec §4.
 
+import { LINE_KEY_RE } from "@/lib/variants/line-key";
+
 export const CART_COOKIE = "swiftshop_cart";
 
 /** productId → qty (1–9). */
@@ -33,7 +35,7 @@ export function parseCartCookie(value: string | null): CartMap {
 
     for (const [id, qty] of Object.entries(raw)) {
       if (count >= MAX_LINES) break;
-      if (!ID_RE.test(id)) continue;
+      if (!LINE_KEY_RE.test(id)) continue;
 
       const q = Number(qty);
       if (typeof qty !== "number" || !Number.isInteger(q)) continue;

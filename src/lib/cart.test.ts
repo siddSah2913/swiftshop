@@ -60,6 +60,32 @@ describe("parseCartCookie", () => {
   });
 });
 
+describe("parseCartCookie with variant line keys", () => {
+  const plain = "clxproduct1234567890abcd";
+  const o1 = "clxopt000000000000000001";
+  const o2 = "clxopt000000000000000002";
+
+  it("parses composite keys and keeps legacy plain ids", () => {
+    const cart = parseCartCookie(
+      encodeURIComponent(JSON.stringify({ [plain]: 2, [`${plain}:${o1}:${o2}`]: 1 }))
+    );
+    expect(cart).toEqual({ [plain]: 2, [`${plain}:${o1}:${o2}`]: 1 });
+  });
+
+  it("drops malformed composite keys silently", () => {
+    const cart = parseCartCookie(
+      encodeURIComponent(
+        JSON.stringify({
+          [`${plain}:${o1}:${o2}:extra`]: 1,
+          "has space": 1,
+          [plain]: 1,
+        })
+      )
+    );
+    expect(cart).toEqual({ [plain]: 1 });
+  });
+});
+
 describe("serializeCart", () => {
   it("round-trips through parseCartCookie", () => {
     const original = { "abc-123": 3, "xyz789": 1 };
