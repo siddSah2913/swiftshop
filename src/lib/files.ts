@@ -19,16 +19,43 @@ const EXT_BY_MIME: Record<string, string> = {
   "image/webp": "webp",
 };
 
-/** Extension for an accepted image mime type, else null. */
-export function imageExt(mime: string): string | null {
-  return EXT_BY_MIME[mime] ?? null;
+const MIME_BY_EXT: Record<string, string> = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+};
+
+/**
+ * Extension for an accepted image mime type, else null.
+ * Falls back to the filename extension when the MIME type is non-canonical
+ * (e.g. `image/x-png` on some Windows configs) — the browser's `accept`
+ * attribute already constrains the picker, so extension-based detection is
+ * a safe secondary check.
+ */
+export function imageExt(mime: string, filename?: string): string | null {
+  const fromMime = EXT_BY_MIME[mime];
+  if (fromMime) return fromMime;
+  if (filename) {
+    const ext = filename.split(".").pop()?.toLowerCase();
+    if (ext) {
+      const canonical = EXT_BY_MIME[MIME_BY_EXT[ext]];
+      if (canonical) return canonical;
+    }
+  }
+  return null;
+}
+
+/** Canonical MIME type for a known image extension, else null. */
+export function extToMime(ext: string): string | null {
+  return MIME_BY_EXT[ext.toLowerCase()] ?? null;
 }
 
 /** Returns an i18n key describing the first problem, or null when the file is OK. */
 export function validateImageFile(
   file: File,
 ): "products.invalidImage" | "products.imageTooBig" | null {
-  if (!imageExt(file.type)) return "products.invalidImage";
+  if (!imageExt(file.type, file.name)) return "products.invalidImage";
   if (file.size === 0) return "products.invalidImage";
   if (file.size > MAX_FILE_BYTES) return "products.imageTooBig";
   return null;
@@ -49,7 +76,7 @@ export async function writeUpload(
   storeId: string,
   prefix = "",
 ): Promise<string> {
-  const ext = imageExt(file.type); // validated upstream; throw here on misuse
+  const ext = imageExt(file.type, file.name); // validated upstream; throw here on misuse
   if (!ext) throw new Error(`unexpected mime for upload: ${file.type}`);
   const dir = path.join(process.cwd(), "public", "uploads-original", storeId);
   const filename = `${prefix}${randomUUID()}.${ext}`;
