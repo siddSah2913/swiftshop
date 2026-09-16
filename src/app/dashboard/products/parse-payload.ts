@@ -112,7 +112,12 @@ export function parseSingleForm(
   formData: FormData,
   opts: { requirePhoto?: boolean } = {},
 ): ParseResult {
-  const photos = formData.getAll("photo").filter((f): f is File => f instanceof File);
+  // Server-action serialization turns an empty <input type="file"> into a
+  // zero-byte File; a 0-byte file can never be a usable photo, so drop it
+  // before validation (an edit save with no new photo must still succeed).
+  const photos = formData
+    .getAll("photo")
+    .filter((f): f is File => f instanceof File && f.size > 0);
   if (photos.length > MAX_PHOTOS_PER_SUBMISSION) {
     return { ok: false, errorKey: "products.tooManyPhotos" };
   }

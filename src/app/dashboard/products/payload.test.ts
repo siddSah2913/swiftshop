@@ -37,6 +37,24 @@ describe("parseSingleForm", () => {
     fd.append("photo", photo());
     expect(parseSingleForm(fd).ok).toBe(false);
   });
+
+  it("ignores an empty photo input (edit save with no new photo)", () => {
+    const fd = new FormData();
+    fd.set("name", "Tee");
+    fd.set("priceNpr", "1900");
+    fd.append("photo", new File([], "", { type: "application/octet-stream" }));
+    const out = parseSingleForm(fd, { requirePhoto: false });
+    expect(out.ok).toBe(true);
+    if (out.ok) expect(out.data.photoFiles).toHaveLength(0);
+  });
+
+  it("an empty photo input is not a real photo on the create path", () => {
+    const fd = new FormData();
+    fd.set("name", "Tee");
+    fd.set("priceNpr", "1900");
+    fd.append("photo", new File([], "", { type: "application/octet-stream" }));
+    expect(parseSingleForm(fd).ok).toBe(false); // photo still required
+  });
 });
 
 describe("parseBulkForm", () => {
