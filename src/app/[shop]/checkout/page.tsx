@@ -6,6 +6,9 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { parseCartCookie, CART_COOKIE } from "@/lib/cart";
+import { parseLineKey } from "@/lib/variants/line-key";
+import { formatVariantName } from "@/lib/variants/label";
+import { validateSelection } from "@/lib/variants/validate";
 import { computeTotal } from "@/lib/order";
 import { getLocale, t } from "@/lib/i18n";
 import { CheckoutForm } from "@/components/checkout-form";
@@ -35,9 +38,14 @@ export default async function CheckoutPage({ params }: Props) {
 
   const cookieStore = await cookies();
   const cart = parseCartCookie(cookieStore.get(CART_COOKIE)?.value ?? null);
-  const productIds = Object.keys(cart);
+  // Line keys are composite (productId[:optionId…] for variants), so each line
+  // must resolve through parseLineKey + validateSelection — never treat the raw
+  // key as a bare product id. Mirrors the cart page and placeOrder.
+  const keys = Object.keys(cart)
+    .map((key) => ({ key, ...parseLineKey(key) }))
+    .filter((k) => k.productId);
 
-  if (productIds.length === 0) {
+  if (keys.length === 0) {
     return (
       <div className="py-12 text-center">
         <h1 className="text-2xl font-bold text-zinc-900">
@@ -54,16 +62,36 @@ export default async function CheckoutPage({ params }: Props) {
     );
   }
 
+  const productIds = [...new Set(keys.map((k) => k.productId))];
   const dbProducts = await prisma.product.findMany({
     where: { id: { in: productIds }, storeId: store.id, available: true },
+    include: {
+      optionGroups: {
+        orderBy: { sortOrder: "asc" },
+        include: { options: { orderBy: { sortOrder: "asc" } } },
+      },
+    },
   });
+  const byId = new Map(dbProducts.map((p) => [p.id, p]));
 
-  const lines = dbProducts
-    .map((p) => ({
-      product: p,
-      qty: cart[p.id] ?? 1,
-    }))
-    .sort((a, b) => a.product.name.localeCompare(b.product.name));
+  // Re-read products from DB scoped to this store — drop foreign/disabled
+  // products AND lines whose chosen option is missing/sold-out/malformed.
+  const lines = keys
+    .map(({ key, productId, optionIds }) => {
+      const product = byId.get(productId);
+      if (!product) return null;
+      const qty = cart[key] ?? 1;
+      const sel = validateSelection(product.optionGroups, optionIds);
+      if (!sel.ok) return null;
+      return {
+        key,
+        product,
+        lineName: formatVariantName(product.name, sel.optionNames),
+        qty,
+      };
+    })
+    .filter((line): line is NonNullable<typeof line> => line !== null)
+    .sort((a, b) => a.lineName.localeCompare(b.lineName));
 
   if (lines.length === 0) {
     return (
@@ -108,8 +136,8 @@ export default async function CheckoutPage({ params }: Props) {
             {t(locale, "checkout.orderSummary")}
           </h2>
           <ul className="mt-3 divide-y divide-zinc-200">
-            {lines.map(({ product, qty }) => (
-              <li key={product.id} className="flex items-center gap-3 py-3">
+            {lines.map(({ key, product, lineName, qty }) => (
+              <li key={key} className="flex items-center gap-3 py-3">
                 {product.imageUrls[0] ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -122,7 +150,7 @@ export default async function CheckoutPage({ params }: Props) {
                 )}
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-zinc-900">
-                    {product.name}
+                    {lineName}
                   </p>
                   <p className="text-xs text-zinc-500">
                     {qty} × {t(locale, "product.priceNpr")}{" "}
