@@ -1,6 +1,6 @@
 # PROGRESS — SwiftShop: Nepal's E-commerce Website Builder
 
-_Last updated: 2026-09-16. Update this file at the END of every session/phase._
+_Last updated: 2026-09-17. Update this file at the END of every session/phase._
 
 ## Phase status
 - ✅ **Phase 0 — Foundation** — DONE 2026-09-13 (build passes, auth + i18n verified live).
@@ -10,6 +10,7 @@ _Last updated: 2026-09-16. Update this file at the END of every session/phase._
 - ✅ **Phase 4 — Delivery automation** — DONE 2026-09-15 (build ✓ + 130/130 tests + 6 tasks + §5.8 review with 8 fixes; tagged `phase-4`). Full live walkthrough (fresh order → confirm → hand NCM w/ `$`-ref → literal tracking → WhatsApp preview → delivered) + tenant + नेपाली verified.
 - ✅ **Phase 5 — Real online payments** — DONE 2026-09-15 (build ✓ + 156/156 tests + 5 tasks + §5.8 review pass; tagged `phase-5`). Live walkthrough verified: Khalti + eSewa flow, owner toggle, QR fallback, delivery hold enforcement.
 - ✅ **Phase 6 slice 1 — Analytics + Export + Share** — DONE 2026-09-16 (build ✓ + 190/190 tests + 6 tasks + §5.8 review pass + final review fix; tagged `phase-6`). Live walkthrough verified: analytics 5-card page (range/granularity pills, bogus fallback), CSV export (Content-Disposition, UTF-8 BOM, itemsSummary format), product share (desktop modal with 7 platforms + Escape/backdrop close, copied toast), Home+More entry points. Final review caught and fixed `range=all` chart bug (epoch-start grid → 0 totals).
+- ✅ **Phase 6 slice 2 — Product variants (option sets)** — DONE 2026-09-17 (build ✓ + 218/218 tests + 6 tasks + per-task review + §5.8 gate; `phase-6` tag moved to slice-2 HEAD). Live walkthrough verified: admin option-set editor (persist + prefill, empty-photo-input fix), storefront "Choose options" picker with per-option stock gating (sold-out pills disabled), composite cart lines (`Tee — M, Red`), composite-aware checkout + order snapshot, silent sold-out-line drop at checkout, legacy products unaffected, नेपाली i18n (सकियो / रु. / विकल्प चयन गर्नुहोस्), Devanagari admin Options labels.
 
 ## Done so far (before Phase 0)
 - ✅ **Plan written & approved** → full plan lives in `./webplan.md` (root). READ THIS FIRST.
@@ -21,9 +22,10 @@ _Last updated: 2026-09-16. Update this file at the END of every session/phase._
 - ✅ User's follow-along requirement: every phase (0–5) in `webplan.md` §14 now has a **✍️ Cross-check for YOU** block (open these files / run this command / see this result). Golden rule: if a cross-check fails, phase is NOT done.
 
 ## Next step
-- **Phase 6 slice 1 review gate CLOSED (2026-09-16)** — `phase-6` tag on `1b2614f`. Hard gates: `npm run build` ✓, `npm run test` 188/188 ✓, live walkthrough verified (analytics page 5 dimensions, range fallback, CSV export format, product share desktop modal + mobile native, Home/More nav).
+- **Phase status** — slice 1 + slice 2 of Phase 6 both CLOSED (see rows above). `phase-6` tag covers both slices at the slice-2 HEAD (`3b1046f`).
 - **✍️ Phase 6 slice 1 Cross-check for you (user):** With `npm run dev` on :3000, sign in as `demo@swiftshop.local`/`demo1234` (store `sitasfashion`). On your phone (Android/iOS UA): Dashboard → Analytics card appears under the two stat links. Open Analytics — Revenue NPR shows a non-zero total; "Top products" table lists Pashmina Shawl and Tee. Tap "Last 7 days" pill — URL changes to `?range=7d&granularity=day`, data updates. Click Export CSV → file downloads with `orders-sitasfashion-<today>.csv`. Open product page → Share button under price → tap → OS share sheet opens (native). Back on desktop: tap Share → modal opens with 7 platform tiles; "Copy link" flashes "Copied ✓"; WhatsApp opens `wa.me` link; Escape closes modal. Go to More tab → Analytics row appears before Settings.
-- Then start **Phase 6 slice 2 — Product variants** (read `docs/PLAN.md` §14 Phase 6b) or **Phase 7 — Deployment prep**.
+- **✍️ Phase 6 slice 2 Cross-check for you (user):** With `npm run dev` on :3000, sign in as `demo@swiftshop.local`/`demo1234` (store `sitasfashion`). Edit the Tee → Options section: add a Size group (M stock 5, L stock 0) + a Color group (Red/Blue stock ≥1) → Save → re-edit shows both groups prefilled (leave the photo input empty — empty photo is now ignored on save). Storefront `/sitasfashion`: the Tee card shows a "Choose options" link, not Add-to-cart; Pashmina Shawl still adds directly. Open the Tee → pick Size M + Red → Add → cart shows `Tee — M, Red`; add Size M + Blue → a *second* line; checkout → both lines render with the composite names + total; admin Orders → the new order shows item name `Tee — M, Red`. Set an option's stock to 0, re-checkout → that line is silently dropped and the total excludes it. नेपाली: sold-out pills show "सकियो", prices "रु.", submit "विकल्प चयन गर्नुहोस्", admin Options labels in Devanagari.
+- Then **Phase 7 — Deployment prep** (see `docs/PLAN.md` §14) — or a Phase 6 slice 3 if one is planned.
 - Old folder `D:\#helpweb` still on disk (desktop app pins Bash/preview to it → busy). Delete after app restart.
 
 ## Done in Phase 0 (2026-09-13)
@@ -98,6 +100,20 @@ Executed from the approved plan `docs/superpowers/plans/2026-09-15-phase6-slice1
   - Task 3 TS2322: `isAnalyticsRange(sp.range ?? "")` narrows the `?? ""` expression not `sp.range` — hoisted to locals. Costs: none.
   - Task 5 stub: `globalThis.navigator = {...}` throws on Node (getter-only accessor) — used `vi.stubGlobal("navigator", ...)` per brief's own Step 4. Costs: none.
   - Task 6 ne.ts alignment: ad-hoc ne.ts additions differed from plan's canonical Nepali (6 wording differences) — aligned to spec. Costs: none.
+
+## Done in Phase 6 slice 2 (2026-09-16 → 17) — product variants / option sets
+
+Executed from the approved plan `docs/superpowers/plans/2026-09-16-phase6-slice2-product-variants.md` (6 tasks via SDD, one commit each, tests-first for pure logic; every per-task reviewer gate clean).
+- T1 (`960c898`) `feat(variants)`: pure lib `src/lib/variants/` — `types.ts` (`OptionSetInput`/`StoredOptionGroup` + caps), `line-key.ts` (`LINE_KEY_RE`, `buildLineKey`/`parseLineKey` → composite `productId:optionId` cart keys), `label.ts` (`formatVariantName` → "Tee — M, Red"), `validate.ts` (`validateSelection` — all required groups picked + per-option stock gating). Tests-first.
+- T2 (`e82d9bc`) `feat(variants)`: option-set tables (`ProductOptionGroup` + `ProductOption`, sortOrder-ordered), migration committed, `parseOptionSets` in `parse-payload.ts`, `createProduct`/`updateProduct` write options via delete+reinsert. Rulings A–E recorded (relation back-refs, binding narrow, migration SQL staged, locale key unstaged, `prisma generate`).
+- T3 (`564f378`) `feat(variants)`: admin option-set editor — VariantEditor wires `optionsJson` into `product-form` + new/edit page prefill.
+- T4 (`7d89f22`) `feat(variants)`: storefront picker — "Choose options" pills gated per option, sold-out pills disabled, submit disabled until all groups picked; variant-aware cards ("Choose options" link vs plain "Add to cart"); `addToCartItem` builds composite keys.
+- T5 (`d339729`) `feat(variants)`: composite cart keys through cart (parse/serialize via `parseLineKey`) + snapshot at `placeOrder`; cart steppers resolve each line independently. Ruling F (plan defect — checkout *page*, see below).
+- T6 (`e639e36`) `feat(variants)`: en/ne i18n keys (11 keys, byte-identical parity, `TranslationKey`-enforced).
+- T7 (DoD gate): `npm test` 218/218 ✓ (190 prior + 28 slice-2 tests), `npm run build` ✓ (tsc + i18n parity + 24+ routes). Live walkthrough 7/7: admin editor persist + re-edit prefill; Tee card "Choose options"; picker gating (L sold-out + disabled, submit disabled until both groups picked); two composite cart lines (`Tee — M, Red` + `Tee — M, Blue`) each with its own stepper; checkout renders the composite names and the order snapshot shows the same names on OrderItem rows; sold-out Red line SILENTLY DROPPED at checkout (order #9, single line, NPR 1,900 — mirrors the disabled-product drop; total excludes it); legacy Pashmina Shawl adds as a plain single line; नेपाली pills `सकियो`, price `रु.`, submit `विकल्प चयन गर्नुहोस्`, admin Options labels in Devanagari. Orders #8 (2 variant lines, NPR 5,700) + #9 DB-verified. `phase-6` tag moved to the slice-2 HEAD (single tag covers both slices). NO push — awaiting the user's word.
+- **Controller rulings (task-gate, both bug-class, both fixed + verified live)**:
+  - Ruling E (`4b51ff5` `fix(variants)`): an empty admin `photo` file input submits a zero-byte File that fails `validateImageFile` → EVERY edit-page save errored, so option groups "didn't persist". Fix: drop zero-byte `photo` entries in `parseSingleForm` (`size > 0` filter) — tests-first (+2 in `payload.test.ts`; `createProduct` still requires a real photo).
+  - Ruling F (`3b1046f` `fix(checkout)`): the plan's Task-5 file list omitted `checkout/page.tsx`, whose plain-id join matched composite keys to nothing → "cart is empty" for variant carts. Fix: mirror the cart-page resolver (`parseLineKey` + `validateSelection` + `formatVariantName`, composite key as `<li>` key) so the checkout summary === the `placeOrder` snapshot.
 
 ## Gotchas / notes for future sessions
 - **Skills** are already installed — do NOT re-install. Verify with `claude plugin list` (8 enabled) + `clean-code`/`refactoring`/`code-complete` load. `static-analysis` needs Semgrep/CodeQL installed as a tool — only when §5.8 first calls for it (after auth/payment/delivery code).
